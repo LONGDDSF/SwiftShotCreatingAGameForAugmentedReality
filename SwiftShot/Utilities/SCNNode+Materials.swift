@@ -305,7 +305,7 @@ extension SCNNode {
         
         // set the uniforms, these will be overridden in the runtime
         geometry.setTexture("paintMaskTexture", prop)
-        geometry.setFloat4(SCNNode.paintMaskColorKey, float4(1.0, 1.0, 1.0, 1.0))
+        geometry.setSIMD4Float(SCNNode.paintMaskColorKey, SIMD4<Float>(1.0, 1.0, 1.0, 1.0))
     }
 }
 

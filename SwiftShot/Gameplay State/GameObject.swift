@@ -104,41 +104,40 @@ class GameObject: GKEntity {
     func propInt(_ name: String) -> Int? {
         return properties[name] as? Int
     }
-    func propFloat2(_ name: String) -> float2? {
+    func propSIMD2Float(_ name: String) -> SIMD2<Float>? {
         if let valueString = propString(name) {
             let strings = valueString.split(separator: " ")
             if strings.count >= 2 {
                 if let x = Float(strings[0]),
                    let y = Float(strings[1]) {
-                    return float2(x, y)
+                    return [x, y]
                 }
             }
         }
         return nil
     }
-    func propFloat3(_ name: String) -> float3? {
+    func propSIMD3Float(_ name: String) -> SIMD3<Float>? {
         if let valueString = propString(name) {
             let strings = valueString.split(separator: " ")
             if strings.count >= 3 {
                 if let x = Float(strings[0]),
                    let y = Float(strings[1]),
                    let z = Float(strings[2]) {
-                    return float3(x, y, z)
+                    return [x, y, z]
                 }
             }
         }
         return nil
     }
-    func propFloat4(_ name: String) -> float4? {
+    func propSIMD4Float(_ name: String) -> SIMD4<Float>? {
         if let valueString = propString(name) {
             let strings = valueString.split(separator: " ")
             if strings.count >= 4 {
-                if let x = Float(strings[0]),
-                   let y = Float(strings[1]),
-                   let z = Float(strings[2]),
-                   let w = Float(strings[3]) {
-                   return float4(x, y, z, w)
-                }
+                let x = (strings[0] as NSString).floatValue
+                let y = (strings[1] as NSString).floatValue
+                let z = (strings[2] as NSString).floatValue
+                let w = (strings[3] as NSString).floatValue
+                return [x, y, z, w]
             }
         }
         return nil

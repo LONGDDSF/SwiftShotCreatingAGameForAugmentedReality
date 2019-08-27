@@ -21,7 +21,7 @@ protocol HighlightableComponent {
 // Components that allow require special handling during collisions
 protocol CollisionHandlerComponent {
     // node is the node associated with this CollisionHandlerComponent.
-    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat)
+    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat)
 }
 
 // Components that require setup for scenekit's SCNPhysicsBehavior to work

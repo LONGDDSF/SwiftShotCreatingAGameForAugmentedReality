@@ -34,7 +34,7 @@ class VictoryInteraction: Interaction {
 
         guard let delegate = delegate else { fatalError("No Delegate") }
         delegate.addNodeToLevel(victoryNode)
-        victoryNode.simdWorldPosition = float3(0.0, 15.0, 0.0)
+        victoryNode.simdWorldPosition = SIMD3<Float>(0.0, 15.0, 0.0)
         
         victoryNode.simdEulerAngles.y = teamWon == .teamA ? .pi : 0.0 // Rotate Victory to face in the right direction
         for child in victoryNode.childNodes {
@@ -56,8 +56,8 @@ class VictoryInteraction: Interaction {
             
             if GameTime.time - activationStartTime > timeUntilPhysicsReleased {
                 for child in victoryNode.childNodes {
-                    child.physicsBody?.simdVelocityFactor = float3(1.0, 1.0, 1.0)
-                    child.physicsBody?.simdAngularVelocityFactor = float3(1.0, 1.0, 1.0)
+                    child.physicsBody?.simdVelocityFactor = SIMD3<Float>(1.0, 1.0, 1.0)
+                    child.physicsBody?.simdAngularVelocityFactor = SIMD3<Float>(1.0, 1.0, 1.0)
                 }
             }
         } else {

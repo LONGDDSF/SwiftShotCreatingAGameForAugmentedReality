@@ -8,7 +8,7 @@ Draws a motion trail behind the ball.
 import Foundation
 import SceneKit
 
-extension float4 {
+extension SIMD4 where Scalar == Float {
     init(color: UIColor) {
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -22,10 +22,10 @@ extension float4 {
 }
 
 extension SCNGeometrySource {
-    convenience init(vertices: [float3]) {
+    convenience init(vertices: [SIMD3<Float>]) {
         self.init(vertices: vertices.map(SCNVector3.init))
     }
-    convenience init(colors: [float4]) {
+    convenience init(colors: [SIMD4<Float>]) {
         
         let colorData = colors.withUnsafeBufferPointer { Data(buffer: $0) }
         self.init(data: colorData,
@@ -57,7 +57,7 @@ class TrailBallProjectile: Projectile {
     let trailMat = SCNMaterial()
     let epsilon: Float = 1.19209290E-07 // upper limit on float rounding error
     
-    var worldPositions: [float3] = []
+    var worldPositions: [SIMD3<Float>] = []
 
     var trailHalfWidth: Float {
         return (UserDefaults.standard.trailWidth ?? TrailBallProjectile.defaultTrailWidth) * TrailBallProjectile.ballSize * 0.5
@@ -96,8 +96,8 @@ class TrailBallProjectile: Projectile {
         trailNode.removeFromParentNode()
     }
     
-    private var tempWorldPositions = [float3]()
-    private var colors = [float4]()
+    private var tempWorldPositions = [SIMD3<Float>]()
+    private var colors = [SIMD4<Float>]()
 
     override func onDidApplyConstraints(renderer: SCNSceneRenderer) {
         let frameSkips = 3
@@ -110,7 +110,7 @@ class TrailBallProjectile: Projectile {
         
         let pos = physicsNode.presentation.simdWorldPosition
     
-        var trailDir: float3
+        var trailDir: SIMD3<Float>
         if let prevPos = worldPositions.last {
             trailDir = pos - prevPos
             
@@ -127,7 +127,7 @@ class TrailBallProjectile: Projectile {
             trailDir = objectRootNode.simdWorldFront
         }
     
-        var right = cross(float3(0.0, 1.0, 0.0), trailDir)
+        var right = cross(SIMD3<Float>(0.0, 1.0, 0.0), trailDir)
         right = normalize(right)
         let scale: Float = 1.0 //Float(i - 1) / worldPositions.count
         var halfWidth = trailHalfWidth
@@ -141,8 +141,8 @@ class TrailBallProjectile: Projectile {
         tempWorldPositions.append(u)
         tempWorldPositions.append(v)
         
-        colors.append(float4())
-        colors.append(float4())
+        colors.append(SIMD4<Float>())
+        colors.append(SIMD4<Float>())
         
         updateColors()
         let localPositions = tempWorldPositions.map { trailNode.presentation.simdConvertPosition($0, from: nil) }
@@ -156,14 +156,14 @@ class TrailBallProjectile: Projectile {
     }
     
     private func updateColors() {
-        let baseColor = float4(color: team.color)
+        let baseColor = SIMD4<Float>(color: team.color)
         for i in 0..<colors.count {
             let scale = Float(i) / Float(colors.count)
             colors[i] = baseColor * scale
         }
     }
 
-    func createTrailMesh(positions: [float3], colors: [float4]) -> SCNGeometry? {
+    func createTrailMesh(positions: [SIMD3<Float>], colors: [SIMD4<Float>]) -> SCNGeometry? {
         guard positions.count >= 4 else { return nil }
         let posSource = SCNGeometrySource(vertices: positions)
         let colorSource = SCNGeometrySource(colors: colors)

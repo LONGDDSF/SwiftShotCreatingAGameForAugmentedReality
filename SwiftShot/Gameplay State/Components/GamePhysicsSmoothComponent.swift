@@ -12,9 +12,9 @@ class GamePhysicsSmoothComponent: GKComponent {
     let physicsNode: SCNNode
     let geometryNode: SCNNode
     let smoothStrength: Float = 0.2
-    var parentOffPos: float3
+    var parentOffPos: SIMD3<Float>
     var parentOffRot: simd_quatf
-    var sourceOffPos = float3(0.0)
+    var sourceOffPos = SIMD3<Float>(repeating: 0.0)
     var sourceOffRot = simd_quatf()
     let maxCorrection: Float = 0.5
     var maxRotation: Float = 0.3
@@ -37,7 +37,7 @@ class GamePhysicsSmoothComponent: GKComponent {
     // we can make this call when the physics changes to smooth it
     // make sure its called BEFORE the physics value is changed in the rigid body
     // it works by separating the actual geometry slightly from the physics to correct for the visual pop when position is changed
-    func correctPhysics(node: SCNNode, pos: float3, rot: simd_quatf) {
+    func correctPhysics(node: SCNNode, pos: SIMD3<Float>, rot: simd_quatf) {
         // find old value
         let oldTransform = geometryNode.simdWorldTransform
         

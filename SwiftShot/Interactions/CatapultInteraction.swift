@@ -156,7 +156,7 @@ class CatapultInteraction: Interaction, GrabInteractionDelegate {
     
     let minImpuseToReleaseCatapult: CGFloat = 1.5
     
-    func didCollision(node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         if let gameObject = node.nearestParentGameObject(), let catapult = gameObject as? Catapult {
             guard let otherGameObject = otherNode.nearestParentGameObject() else { return }
             
@@ -167,8 +167,8 @@ class CatapultInteraction: Interaction, GrabInteractionDelegate {
                 
                 // Do not let projectile from the same team kill the catapult
                 if catapult.team == projectile.team {
-                    physicsBody.simdVelocity = float3()
-                    physicsBody.simdAngularVelocity = float4(0.0, 1.0, 0.0, 0.0)
+                    physicsBody.simdVelocity = SIMD3<Float>()
+                    physicsBody.simdAngularVelocity = SIMD4<Float>(0.0, 1.0, 0.0, 0.0)
                 }
             }
             

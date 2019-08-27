@@ -45,7 +45,7 @@ class GameAudioComponent: GKComponent, CollisionHandlerComponent, TouchableCompo
     }
     
     // this is what is called if custom collision response is active
-    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
 
         // we don't play sound if this is a triggerVolume
         if let name = node.name, name.starts(with: "CollisionTrigger") {
@@ -73,7 +73,7 @@ class GameAudioComponent: GKComponent, CollisionHandlerComponent, TouchableCompo
                 if let physicsBody = node.physicsBody {
                     let v = physicsBody.velocity
                     let factor: Float = 1.5
-                    let velocity = length(float3(v.x, v.y, v.z))
+                    let velocity = length(SIMD3<Float>(v.x, v.y, v.z))
                     effectiveImpulse = CGFloat(factor * velocity)
                 } else {
                     effectiveImpulse = 0

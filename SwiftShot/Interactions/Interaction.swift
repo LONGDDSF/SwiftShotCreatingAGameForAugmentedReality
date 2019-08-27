@@ -58,7 +58,7 @@ protocol Interaction: class {
     func handle(gameAction: GameAction, player: Player)
     
     // MARK: - Handle Collision
-    func didCollision(node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat)
+    func didCollision(node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat)
 }
 
 extension Interaction {
@@ -73,7 +73,7 @@ extension Interaction {
     }
     
     // MARK: - Handle Collision
-    func didCollision(node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         
     }
 }

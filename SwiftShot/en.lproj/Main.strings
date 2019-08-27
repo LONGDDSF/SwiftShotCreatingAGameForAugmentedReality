@@ -1,3 +1,9 @@
+/*
+See LICENSE folder for this sample’s licensing information.
+
+Abstract:
+Strings file for the user interface.
+*/
 
 /* Class = "UILabel"; text = "Show Rope Simulation"; ObjectID = "0fY-rv-dlb"; */
 "0fY-rv-dlb.text" = "Show Rope Simulation";

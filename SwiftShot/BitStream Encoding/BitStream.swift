@@ -33,7 +33,7 @@ struct FloatCompressor {
         string.appendUInt32(bitPattern, numberOfBits: bits)
     }
 
-    func write(_ value: float3, to string: inout WritableBitStream) {
+    func write(_ value: SIMD3<Float>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
         write(value.z, to: &string)
@@ -46,8 +46,8 @@ struct FloatCompressor {
         return  ratio * (maxValue - minValue) + minValue
     }
 
-    func readFloat3(from string: inout ReadableBitStream) throws -> float3 {
-        return float3(
+    func readSIMD3Float(from string: inout ReadableBitStream) throws -> SIMD3<Float> {
+        return SIMD3<Float>(
             x: try read(from: &string),
             y: try read(from: &string),
             z: try read(from: &string)
@@ -136,7 +136,7 @@ struct WritableBitStream {
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 8),
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 16),
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 24)]
-        return Data(bytes: endBitIndexBytes + bytes)
+        return Data(endBitIndexBytes + bytes)
     }
 }
 

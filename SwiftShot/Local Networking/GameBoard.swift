@@ -54,7 +54,7 @@ class GameBoard: SCNNode {
     private var isAnimating = false
     
     /// The game board's most recent positions.
-    private var recentPositions: [float3] = []
+    private var recentPositions: [SIMD3<Float>] = []
     
     /// The game board's most recent rotation angles.
     private var recentRotationAngles: [Float] = []
@@ -73,7 +73,7 @@ class GameBoard: SCNNode {
         super.init()
         
         // Set initial game board scale
-        simdScale = float3(GameBoard.minimumScale)
+        simdScale = SIMD3<Float>(repeating: GameBoard.minimumScale)
         
         // Create all border segments
         Corner.allCases.forEach { corner in
@@ -149,12 +149,12 @@ class GameBoard: SCNNode {
         // assumes we always scale the same in all 3 dimensions
         let currentScale = simdScale.x
         let newScale = clamp(currentScale * factor, GameBoard.minimumScale, GameBoard.maximumScale)
-        simdScale = float3(newScale)
+        simdScale = SIMD3<Float>(repeating: newScale)
     }
 
     func useDefaultScale() {
         let scale = preferredSize.width
-        simdScale = float3(Float(scale))
+        simdScale = SIMD3<Float>(repeating: Float(scale))
     }
 
     // MARK: Helper Methods
@@ -167,7 +167,7 @@ class GameBoard: SCNNode {
         recentPositions = Array(recentPositions.suffix(10))
         
         // Move to average of recent positions to avoid jitter.
-        let average = recentPositions.reduce(float3(0), { $0 + $1 }) / Float(recentPositions.count)
+        let average = recentPositions.reduce(SIMD3<Float>(repeating: 0), { $0 + $1 }) / Float(recentPositions.count)
         simdPosition = average
         
         // Orient bounds to plane if possible
@@ -177,7 +177,7 @@ class GameBoard: SCNNode {
         } else {
             // Fall back to camera orientation
             orientToCamera(camera)
-            simdScale = float3(GameBoard.minimumScale)
+            simdScale = SIMD3<Float>(repeating: GameBoard.minimumScale)
         }
         
         // Remove any animation duration if present
@@ -217,7 +217,7 @@ class GameBoard: SCNNode {
         
         // Move to average of recent positions to avoid jitter.
         let averageAngle = recentRotationAngles.reduce(0, { $0 + $1 }) / Float(recentRotationAngles.count)
-        simdRotation = float4(0, 1, 0, averageAngle)
+        simdRotation = SIMD4<Float>(0, 1, 0, averageAngle)
     }
     
     private func scaleToPlane(_ planeAnchor: ARPlaneAnchor) {
@@ -235,17 +235,17 @@ class GameBoard: SCNNode {
         var width = min(planeExtent.x, GameBoard.maximumScale)
         let depth = min(planeExtent.z, width * aspectRatio)
         width = depth / aspectRatio
-        simdScale = float3(width)
+        simdScale = SIMD3<Float>(repeating: width)
         
         // Adjust position of board within plane's bounds
-        var planeLocalExtent = float3(width, 0, depth)
+        var planeLocalExtent = SIMD3<Float>(width, 0, depth)
         if axisFlipped {
             planeLocalExtent = vector3(planeLocalExtent.z, 0, planeLocalExtent.x)
         }
         adjustPosition(withinPlaneBounds: planeAnchor, extent: planeLocalExtent)
     }
     
-    private func adjustPosition(withinPlaneBounds planeAnchor: ARPlaneAnchor, extent: float3) {
+    private func adjustPosition(withinPlaneBounds planeAnchor: ARPlaneAnchor, extent: SIMD3<Float>) {
         var positionAdjusted = false
         let worldToPlane = planeAnchor.transform.inverse
         
@@ -289,7 +289,7 @@ class GameBoard: SCNNode {
         if let plane = fillPlane.geometry as? SCNPlane {
             let length = 1 - 2 * BorderSegment.thickness
             plane.height = length * CGFloat(aspectRatio)
-            let textureScale = float4x4(scale: float3(40, 40 * aspectRatio, 1))
+            let textureScale = float4x4(scale: SIMD3<Float>(40, 40 * aspectRatio, 1))
             plane.firstMaterial?.diffuse.simdContentsTransform = textureScale
             plane.firstMaterial?.emission.simdContentsTransform = textureScale
         }
@@ -315,7 +315,7 @@ class GameBoard: SCNNode {
             // Add a scale/bounce animation.
             SCNTransaction.animate(duration: GameBoard.animationDuration / 4, animations: {
                 SCNTransaction.animationTimingFunction = CAMediaTimingFunction(name: .easeOut)
-                self.simdScale = float3(GameBoard.minimumScale)
+                self.simdScale = SIMD3<Float>(repeating: GameBoard.minimumScale)
             })
         }, completion: {
             // completion is run on main-thread
@@ -367,7 +367,7 @@ class GameBoard: SCNNode {
         
         let material = plane.firstMaterial!
         material.diffuse.contents = UIImage(named: "gameassets.scnassets/textures/grid.png")
-        let textureScale = float4x4(scale: float3(40, 40 * aspectRatio, 1))
+        let textureScale = float4x4(scale: SIMD3<Float>(40, 40 * aspectRatio, 1))
         material.diffuse.simdContentsTransform = textureScale
         material.emission.contents = UIImage(named: "gameassets.scnassets/textures/grid.png")
         material.emission.simdContentsTransform = textureScale

@@ -31,7 +31,7 @@ extension GameViewController: ARSCNViewDelegate {
         if let boardAnchor = anchor as? BoardAnchor {
             // Update the game board's scale from the board anchor
             // The transform will have already been updated - without the scale
-            node.simdScale = float3( Float(boardAnchor.size.width) )
+            node.simdScale = SIMD3<Float>( repeating: Float(boardAnchor.size.width) )
         }
     }
     

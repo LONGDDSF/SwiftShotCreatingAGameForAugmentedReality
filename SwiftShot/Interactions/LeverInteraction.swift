@@ -22,7 +22,7 @@ class LeverInteraction: Interaction {
     private var activeSwitch: ResetSwitchComponent?
     private var highlightedSwitch: ResetSwitchComponent?
     private var leverHighlight: SCNNode?
-    private var startLeverHoldCameraPosition = float3()
+    private var startLeverHoldCameraPosition = SIMD3<Float>()
     private var startLeverEulerX: Float = 0.0
 
     private let leverHighlightDistance: Float = 2.5
@@ -73,7 +73,7 @@ class LeverInteraction: Interaction {
 
         if let activeSwitch = activeSwitch {
             // Lever Pulling
-            var cameraOffset = activeSwitch.pullOffset(cameraOffset: cameraInfo.ray.position - startLeverHoldCameraPosition)
+            let cameraOffset = activeSwitch.pullOffset(cameraOffset: cameraInfo.ray.position - startLeverHoldCameraPosition)
             let cameraMovedZ = cameraOffset.z
             
             var targetEulerX = startLeverEulerX + leverPullZtoLeverEulerRotation * cameraMovedZ
@@ -93,7 +93,7 @@ class LeverInteraction: Interaction {
                 return
             } else {
                 // Inform peers of the movement
-                guard let leverID = resetSwitches.index(of: activeSwitch) else { fatalError("No lever in array") }
+                guard let leverID = resetSwitches.firstIndex(of: activeSwitch) else { fatalError("No lever in array") }
                 delegate.dispatchActionToServer(gameAction: .leverMove(LeverMove(leverID: leverID, eulerAngleX: targetEulerX)))
             }
         } else {

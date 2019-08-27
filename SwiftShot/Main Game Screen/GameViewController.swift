@@ -161,7 +161,7 @@ class GameViewController: UIViewController {
     // Root node of the level
     var renderRoot = SCNNode()
     
-    var panOffset = float3()
+    var panOffset = SIMD3<Float>()
 
     var buttonBeep: ButtonBeep!
     var backButtonBeep: ButtonBeep!
@@ -336,7 +336,7 @@ class GameViewController: UIViewController {
             gameBoard.anchor = targetWorldMap.boardAnchor
             if let boardAnchor = gameBoard.anchor {
                 gameBoard.simdTransform = boardAnchor.transform
-                gameBoard.simdScale = float3( Float(boardAnchor.size.width) )
+                gameBoard.simdScale = SIMD3<Float>(repeating: Float(boardAnchor.size.width))
             }
             gameBoard.hideBorder(duration: 0)
             
@@ -499,7 +499,7 @@ class GameViewController: UIViewController {
     }
     
     func preloadLevel() {
-        os_signpost(.begin, log: .preload_assets, name: .preload_assets, signpostID: .preload_assets,
+        os_signpost(.begin, log: .preloadAssets, name: .preloadAssets, signpostID: .preloadAssets,
                     "Preloading assets started")
 
         let main = DispatchQueue.main
@@ -524,10 +524,10 @@ class GameViewController: UIViewController {
                         // preparing a scene compiles shaders
                         self.sceneView.prepare([scene], completionHandler: { success in
                             if success {
-                                os_signpost(.end, log: .preload_assets, name: .preload_assets, signpostID: .preload_assets,
+                                os_signpost(.end, log: .preloadAssets, name: .preloadAssets, signpostID: .preloadAssets,
                                             "Preloading assets succeeded")
                             } else {
-                                os_signpost(.end, log: .preload_assets, name: .preload_assets, signpostID: .preload_assets,
+                                os_signpost(.end, log: .preloadAssets, name: .preloadAssets, signpostID: .preloadAssets,
                                             "Preloading assets failed")
                             }
                         })
@@ -557,9 +557,9 @@ class GameViewController: UIViewController {
         }
         gameBoard.hideBorder()
 
-        os_signpost(.begin, log: .setup_level, name: .setup_level, signpostID: .setup_level,
+        os_signpost(.begin, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
                     "Setting up Level")
-        defer { os_signpost(.end, log: .setup_level, name: .setup_level, signpostID: .setup_level,
+        defer { os_signpost(.end, log: .setupLevel, name: .setupLevel, signpostID: .setupLevel,
                             "Finished Setting Up Level") }
 
         sessionState = .gameInProgress
@@ -672,9 +672,9 @@ extension GameViewController: SCNSceneRendererDelegate {
     // https://developer.apple.com/documentation/scenekit/scnscenerendererdelegate
     
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        os_signpost(.begin, log: .render_loop, name: .render_loop, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .renderLoop, signpostID: .renderLoop,
                     "Render loop started")
-        os_signpost(.begin, log: .render_loop, name: .logic_update, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .logicUpdate, signpostID: .renderLoop,
                     "Game logic update started")
         
         if let gameManager = self.gameManager, gameManager.isInitialized {
@@ -716,12 +716,12 @@ extension GameViewController: SCNSceneRendererDelegate {
             gameManager.update(timeDelta: GameTime.deltaTime)
         }
 
-        os_signpost(.end, log: .render_loop, name: .logic_update, signpostID: .render_loop,
+        os_signpost(.end, log: .renderLoop, name: .logicUpdate, signpostID: .renderLoop,
                     "Game logic update finished")
     }
 
     func renderer(_ renderer: SCNSceneRenderer, didApplyConstraintsAtTime time: TimeInterval) {
-        os_signpost(.begin, log: .render_loop, name: .post_constraints_update, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .postConstraintsUpdate, signpostID: .renderLoop,
                     "Post constraints update started")
         if let gameManager = gameManager, gameManager.isInitialized {
             // scale up/down the camera to render space
@@ -739,12 +739,12 @@ extension GameViewController: SCNSceneRendererDelegate {
             }
         }
 
-       os_signpost(.end, log: .render_loop, name: .post_constraints_update, signpostID: .render_loop,
+       os_signpost(.end, log: .renderLoop, name: .postConstraintsUpdate, signpostID: .renderLoop,
                    "Post constraints update finished")
     }
 
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-        os_signpost(.begin, log: .render_loop, name: .render_scene, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .renderScene, signpostID: .renderLoop,
                     "Rendering scene started")
     }
 
@@ -761,9 +761,9 @@ extension GameViewController: SCNSceneRendererDelegate {
             gameManager.scaleCameraToSimulation()
         }
 
-        os_signpost(.end, log: .render_loop, name: .render_scene, signpostID: .render_loop,
+        os_signpost(.end, log: .renderLoop, name: .renderScene, signpostID: .renderLoop,
                     "Rendering scene finished")
-        os_signpost(.end, log: .render_loop, name: .render_loop, signpostID: .render_loop,
+        os_signpost(.end, log: .renderLoop, name: .renderLoop, signpostID: .renderLoop,
                     "Render loop finished")
     }
     

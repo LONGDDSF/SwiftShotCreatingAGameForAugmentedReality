@@ -24,7 +24,7 @@ enum ProjectileType: UInt32, CaseIterable {
 
 protocol ProjectileDelegate: class {
     var isServer: Bool { get }
-    func addParticles(_ particlesNode: SCNNode, worldPosition: float3)
+    func addParticles(_ particlesNode: SCNNode, worldPosition: SIMD3<Float>)
     func despawnProjectile(_ projectile: Projectile)
     func addNodeToLevel(node: SCNNode)
 }
@@ -90,8 +90,8 @@ class Projectile: GameObject {
         if let physicsNode = physicsNode,
             let physicsBody = physicsBody {
             
-            physicsBody.simdVelocityFactor = float3(1.0, 1.0, 1.0)
-            physicsBody.simdAngularVelocityFactor = float3(1.0, 1.0, 1.0)
+            physicsBody.simdVelocityFactor = SIMD3<Float>(1.0, 1.0, 1.0)
+            physicsBody.simdAngularVelocityFactor = SIMD3<Float>(1.0, 1.0, 1.0)
             physicsBody.simdVelocity = velocity.vector
             physicsNode.name = "ball"
             physicsNode.simdWorldPosition = velocity.origin

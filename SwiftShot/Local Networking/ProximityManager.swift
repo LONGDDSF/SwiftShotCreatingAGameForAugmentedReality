@@ -53,6 +53,8 @@ extension CLProximity: CustomStringConvertible {
             return "near"
         case .far:
             return "far"
+        default:
+            fatalError("Encountered an unexpected CL proximity.")
         }
     }
 }
@@ -143,6 +145,8 @@ extension ProximityManager: CLLocationManagerDelegate {
             statusString = "not determined"
         case .restricted:
             statusString = "restricted"
+        default:
+            fatalError("Encountered an unexpected auth status.")
         }
         os_log(.debug, "Changed location authorization status: %s", statusString)
 

@@ -15,8 +15,8 @@ class RemoveWhenFallenComponent: GKComponent {
         guard let physicsNode = gameObject.physicsNode else { return }
         // check past min/max bounds
         // the border was chosen experimentally to see what feels good
-        let minBounds = float3(-80.0, -10.0, -80.0) // -10.0 represents 1.0 meter high table
-        let maxBounds = float3(80.0, 1000.0, 80.0)
+        let minBounds = SIMD3<Float>(-80.0, -10.0, -80.0) // -10.0 represents 1.0 meter high table
+        let maxBounds = SIMD3<Float>(80.0, 1000.0, 80.0)
         let position = physicsNode.presentation.simdWorldPosition
 
         // this is only checking position, but bounds could be offset or bigger

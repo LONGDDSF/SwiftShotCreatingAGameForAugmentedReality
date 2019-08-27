@@ -199,9 +199,9 @@ class GameManager: NSObject {
 
     // MARK: - inbound from network
     private func process(command: GameCommand) {
-        os_signpost(.begin, log: .render_loop, name: .process_command, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .processCommand, signpostID: .renderLoop,
                     "Action : %s", command.action.description)
-        defer { os_signpost(.end, log: .render_loop, name: .process_command, signpostID: .render_loop,
+        defer { os_signpost(.end, log: .renderLoop, name: .processCommand, signpostID: .renderLoop,
                             "Action : %s", command.action.description) }
 
         switch command.action {
@@ -267,7 +267,7 @@ class GameManager: NSObject {
             let isVisible = renderer.isNode(visGeo.findNodeWithGeometry()!, insideFrustumOf: camera)
             catapult.isVisible = isVisible
             
-            catapult.projectedPos = float3(renderer.projectPoint(catapult.base.worldPosition))
+            catapult.projectedPos = SIMD3<Float>(renderer.projectPoint(catapult.base.worldPosition))
             catapult.projectedPos.x /= Float(UIScreen.main.bounds.width)
             catapult.projectedPos.y /= Float(UIScreen.main.bounds.height)
         }
@@ -317,9 +317,9 @@ class GameManager: NSObject {
     }
 
     private func syncPhysics() {
-        os_signpost(.begin, log: .render_loop, name: .physics_sync, signpostID: .render_loop,
+        os_signpost(.begin, log: .renderLoop, name: .physicsSync, signpostID: .renderLoop,
                     "Physics sync started")
-        defer { os_signpost(.end, log: .render_loop, name: .physics_sync, signpostID: .render_loop,
+        defer { os_signpost(.end, log: .renderLoop, name: .physicsSync, signpostID: .renderLoop,
                             "Physics sync finished") }
 
         if isNetworked && physicsSyncData.isInitialized {
@@ -575,7 +575,7 @@ class GameManager: NSObject {
             if !gameObject.usePredefinedPhysics {
                 // Constrain the angularVelocity until first ball fires.
                 // This is done to stabilize the level.
-                gameObject.physicsNode?.physicsBody?.simdAngularVelocityFactor = float3(0.0, 0.0, 0.0)
+                gameObject.physicsNode?.physicsBody?.simdAngularVelocityFactor = SIMD3<Float>(0.0, 0.0, 0.0)
                 
                 if let physicsNode = gameObject.physicsNode,
                     let physicsBody = physicsNode.physicsBody {
@@ -730,16 +730,16 @@ class GameManager: NSObject {
         pointOfView.simdWorldTransform = pointOfViewSimulation.simdWorldTransform
     }
     
-    func renderSpacePositionToSimulationSpace(pos: float3) -> float3 {
-        return (renderToSimulationTransform * float4(pos, 1.0)).xyz
+    func renderSpacePositionToSimulationSpace(pos: SIMD3<Float>) -> SIMD3<Float> {
+        return (renderToSimulationTransform * SIMD4<Float>(pos, 1.0)).xyz
     }
 
     func renderSpaceTransformToSimulationSpace(transform: float4x4) -> float4x4 {
         return renderToSimulationTransform * transform
     }
     
-    func simulationSpacePositionToRenderSpace(pos: float3) -> float3 {
-        return (renderToSimulationTransform.inverse * float4(pos, 1.0)).xyz
+    func simulationSpacePositionToRenderSpace(pos: SIMD3<Float>) -> SIMD3<Float> {
+        return (renderToSimulationTransform.inverse * SIMD4<Float>(pos, 1.0)).xyz
     }
 
     func initGameObject(for node: SCNNode) -> GameObject {
@@ -751,7 +751,7 @@ class GameManager: NSObject {
     }
 
     // after collision we care about is detected, we check for any collision related components and process them
-    func didCollision(nodeA: SCNNode, nodeB: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(nodeA: SCNNode, nodeB: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         // let any collision handling components on nodeA respond to the collision with nodeB
 
         if let entity = nodeA.nearestParentGameObject() {
@@ -770,7 +770,7 @@ class GameManager: NSObject {
         interactionManager.didCollision(nodeA: nodeA, nodeB: nodeB, pos: pos, impulse: impulse)
     }
     
-    func didBeginContact(nodeA: SCNNode, nodeB: SCNNode, pos: float3, impulse: CGFloat) {
+    func didBeginContact(nodeA: SCNNode, nodeB: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         interactionManager.didCollision(nodeA: nodeA, nodeB: nodeB, pos: pos, impulse: impulse)
     }
     
@@ -1048,7 +1048,7 @@ extension GameManager: ProjectileDelegate {
         gameObjectPool.despawnProjectile(projectile)
     }
     
-    func addParticles(_ particlesNode: SCNNode, worldPosition: float3) {
+    func addParticles(_ particlesNode: SCNNode, worldPosition: SIMD3<Float>) {
         levelNode.addChildNode(particlesNode)
         particlesNode.simdWorldPosition = worldPosition
     }
@@ -1079,7 +1079,7 @@ extension GameManager: GameObjectPoolDelegate {
     func onSpawnedProjectile() {
         // Release all physics contraints
         for block in gameObjectManager.blockObjects {
-            block.physicsNode?.physicsBody?.simdAngularVelocityFactor = float3(1.0, 1.0, 1.0)
+            block.physicsNode?.physicsBody?.simdAngularVelocityFactor = SIMD3<Float>(1.0, 1.0, 1.0)
         }
     }
 }
@@ -1100,11 +1100,11 @@ extension GameManager: GameAudioComponentDelegate {
 extension GameManager: SCNPhysicsContactDelegate {
     func physicsWorld(_ world: SCNPhysicsWorld, didEnd contact: SCNPhysicsContact) {
         self.didCollision(nodeA: contact.nodeA, nodeB: contact.nodeB,
-                             pos: float3(contact.contactPoint), impulse: contact.collisionImpulse)
+                             pos: SIMD3<Float>(contact.contactPoint), impulse: contact.collisionImpulse)
     }
     
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
         self.didBeginContact(nodeA: contact.nodeA, nodeB: contact.nodeB,
-                                pos: float3(contact.contactPoint), impulse: contact.collisionImpulse)
+                                pos: SIMD3<Float>(contact.contactPoint), impulse: contact.collisionImpulse)
     }
 }

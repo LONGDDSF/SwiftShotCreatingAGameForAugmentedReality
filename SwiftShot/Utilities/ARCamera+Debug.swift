@@ -31,6 +31,8 @@ extension ARCamera.TrackingState.Reason: CustomStringConvertible {
             return "insufficientFeatures"
         case .relocalizing:
             return "relocalizing"
+        default:
+            fatalError(#function + " - Unexpected camera tracking state reason.")
         }
     }
 }

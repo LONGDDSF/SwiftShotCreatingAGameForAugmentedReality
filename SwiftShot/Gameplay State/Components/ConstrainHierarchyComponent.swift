@@ -10,8 +10,8 @@ import GameplayKit
 
 extension SCNNode {
     func hasConstraints() -> Bool {
-        let balljoints = findAllJoints(prefix: ConstrainHierarchyComponent.joint_name)
-        let hingeJoints = findAllJoints(prefix: ConstrainHierarchyComponent.hinge_name)
+        let balljoints = findAllJoints(prefix: ConstrainHierarchyComponent.jointName)
+        let hingeJoints = findAllJoints(prefix: ConstrainHierarchyComponent.hingeName)
         return !(balljoints.isEmpty && hingeJoints.isEmpty)
     }
     
@@ -35,9 +35,9 @@ extension SCNNode {
 // which it tries to attach to constraint_socket_nodes with the same suffix.
 class ConstrainHierarchyComponent: GKComponent, PhysicsBehaviorComponent {
 
-    static let hinge_name = "constraint_hinge"
-    static let joint_name = "constraint_ball"
-    static let socket_name = "constraint_attach"
+    static let hingeName = "constraint_hinge"
+    static let jointName = "constraint_ball"
+    static let socketName = "constraint_attach"
     private let searchDist = Float(0.5)
     private var joints = [SCNPhysicsBehavior]()
     var behaviors: [SCNPhysicsBehavior] {
@@ -59,11 +59,11 @@ class ConstrainHierarchyComponent: GKComponent, PhysicsBehaviorComponent {
         guard let systemRoot = root.parentWithPrefix(prefix: "_system") else { return }
         
         // search for ball constraint with name constraint_ball_
-        let ballArray = root.findAllJoints(prefix: ConstrainHierarchyComponent.joint_name)
+        let ballArray = root.findAllJoints(prefix: ConstrainHierarchyComponent.jointName)
         for ballSocket in ballArray {
             guard let physicsNode = entity.physicsNode, let physicsBody = physicsNode.physicsBody else { continue }
             physicsBody.resetTransform()
-            let socketOffset = ballSocket.simdConvertPosition(float3(0), to: systemRoot)
+            let socketOffset = ballSocket.simdConvertPosition(SIMD3<Float>(repeating: 0), to: systemRoot)
             
             // find in root first
             let (closestNode, _) = findAttachNodeNearPoint(system: systemRoot, node: systemRoot, point: socketOffset, tolerance: searchDist)
@@ -79,11 +79,11 @@ class ConstrainHierarchyComponent: GKComponent, PhysicsBehaviorComponent {
             }
         }
             
-        let hingeArray = root.findAllJoints(prefix: ConstrainHierarchyComponent.hinge_name)
+        let hingeArray = root.findAllJoints(prefix: ConstrainHierarchyComponent.hingeName)
         for hingeJoint in hingeArray {
             guard let physicsNode = entity.physicsNode, let physicsBody = physicsNode.physicsBody else { continue }
             physicsBody.resetTransform()
-            let hingeOffset = hingeJoint.simdConvertPosition(float3(0), to: systemRoot)
+            let hingeOffset = hingeJoint.simdConvertPosition(SIMD3<Float>(repeating: 0), to: systemRoot)
             
             // find in root first
             let (closestNode, _) = findAttachNodeNearPoint(system: systemRoot, node: systemRoot, point: hingeOffset, tolerance: searchDist)
@@ -122,12 +122,12 @@ class ConstrainHierarchyComponent: GKComponent, PhysicsBehaviorComponent {
         joints.append(joint)
     }
     
-    private func findAttachNodeNearPoint(system: SCNNode, node: SCNNode, point: float3, tolerance: Float) -> (SCNNode?, Float) {
+    private func findAttachNodeNearPoint(system: SCNNode, node: SCNNode, point: SIMD3<Float>, tolerance: Float) -> (SCNNode?, Float) {
         var currentTolerance = tolerance
         var currentClosestNode: SCNNode? = nil
         if let name = node.name,  // if this object has a socket node near ball node, then use it
-            name.hasPrefix(ConstrainHierarchyComponent.socket_name) {
-            let attachOffset = node.simdConvertPosition(float3(0), to: system)
+            name.hasPrefix(ConstrainHierarchyComponent.socketName) {
+            let attachOffset = node.simdConvertPosition(SIMD3<Float>(repeating: 0), to: system)
             let distance = length(point - attachOffset)
             if distance < currentTolerance {
                 currentTolerance = distance

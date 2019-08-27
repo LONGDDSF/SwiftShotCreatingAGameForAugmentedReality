@@ -14,7 +14,7 @@ struct GameCommand {
     var action: Action
 }
 
-extension float3: BitStreamCodable {
+extension SIMD3 where Scalar == Float {
     init(from bitStream: inout ReadableBitStream) throws {
         let x = try bitStream.readFloat()
         let y = try bitStream.readFloat()
@@ -29,7 +29,7 @@ extension float3: BitStreamCodable {
     }
 }
 
-extension float4: BitStreamCodable {
+extension SIMD4 where Scalar == Float {
     init(from bitStream: inout ReadableBitStream) throws {
         let x = try bitStream.readFloat()
         let y = try bitStream.readFloat()
@@ -49,10 +49,10 @@ extension float4: BitStreamCodable {
 extension float4x4: BitStreamCodable {
     init(from bitStream: inout ReadableBitStream) throws {
         self.init()
-        self.columns.0 = try float4(from: &bitStream)
-        self.columns.1 = try float4(from: &bitStream)
-        self.columns.2 = try float4(from: &bitStream)
-        self.columns.3 = try float4(from: &bitStream)
+        self.columns.0 = try SIMD4<Float>(from: &bitStream)
+        self.columns.1 = try SIMD4<Float>(from: &bitStream)
+        self.columns.2 = try SIMD4<Float>(from: &bitStream)
+        self.columns.3 = try SIMD4<Float>(from: &bitStream)
     }
 
     func encode(to bitStream: inout WritableBitStream) {
@@ -145,15 +145,15 @@ enum BoardSetupAction: BitStreamCodable {
 }
 
 struct Ray {
-    var position: float3
-    var direction: float3
-    static var zero: Ray { return Ray(position: float3(), direction: float3()) }
+    var position: SIMD3<Float>
+    var direction: SIMD3<Float>
+    static var zero: Ray { return Ray(position: SIMD3<Float>(), direction: SIMD3<Float>()) }
 }
 
 extension Ray: BitStreamCodable {
     init(from bitStream: inout ReadableBitStream) throws {
-        position = try float3(from: &bitStream)
-        direction = try float3(from: &bitStream)
+        position = try SIMD3<Float>(from: &bitStream)
+        direction = try SIMD3<Float>(from: &bitStream)
     }
 
     func encode(to bitStream: inout WritableBitStream) {
@@ -166,7 +166,7 @@ struct CameraInfo {
     var transform: float4x4
     var ray: Ray {
         let position = transform.translation
-        let direction = normalize((transform * float4(0, 0, -1, 0)).xyz)
+        let direction = normalize((transform * SIMD4<Float>(0, 0, -1, 0)).xyz)
         return Ray(position: position, direction: direction)
     }
 }
@@ -184,15 +184,15 @@ extension CameraInfo: BitStreamCodable {
 // GameVelocity stores the origin and vector of velocity.
 // It is similar to ray, but whereas ray will have normalized direction, the .vector is the velocity vector
 struct GameVelocity {
-    var origin: float3
-    var vector: float3
-    static var zero: GameVelocity { return GameVelocity(origin: float3(), vector: float3()) }
+    var origin: SIMD3<Float>
+    var vector: SIMD3<Float>
+    static var zero: GameVelocity { return GameVelocity(origin: SIMD3<Float>(), vector: SIMD3<Float>()) }
 }
 
 extension GameVelocity: BitStreamCodable {
     init(from bitStream: inout ReadableBitStream) throws {
-        origin = try float3(from: &bitStream)
-        vector = try float3(from: &bitStream)
+        origin = try SIMD3<Float>(from: &bitStream)
+        vector = try SIMD3<Float>(from: &bitStream)
     }
 
     func encode(to bitStream: inout WritableBitStream) {

@@ -42,7 +42,7 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
     private let chasmPhysics: SCNNode
 //    private let chasmFire: SCNNode
     private var chasmExpandObject: SCNNode?
-    private let chasmFinalScale = float3(0.96, 1.0, 0.96)
+    private let chasmFinalScale = SIMD3<Float>(0.96, 1.0, 0.96)
     
     // Stage time
     private var timeSinceInitialFloatStart: TimeInterval { return GameTime.time - startInitialFloatTime }
@@ -70,7 +70,7 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
                 child.setNodeToOccluder()
             }
         }
-        chasmPhysics.simdWorldPosition = float3(0.0, -0.1, 0.0) // avoid z-fight with ShadowPlane
+        chasmPhysics.simdWorldPosition = SIMD3<Float>(0.0, -0.1, 0.0) // avoid z-fight with ShadowPlane
         chasmPhysics.simdScale = chasmFinalScale
         chasmPhysics.stopAllAnimations()
     }
@@ -146,7 +146,7 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
     private var lastVortexCenterY: Float = 0.0
     private var lastVortexHeight: Float = 0.0
     private var lastOuterRadius: Float = 0.0
-    private var lastFront = float3(0.0, 0.0, -1.0)
+    private var lastFront = SIMD3<Float>(0.0, 0.0, -1.0)
 
     func animateVortex() {
         guard let delegate = delegate else { fatalError("No delegate") }
@@ -179,12 +179,12 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
         let bottomBound = vortexCenterY - vortexShape.y * 0.5
         
         let blockObjects = delegate.allBlockObjects
-        let up = float3(0.0, 1.0, 0.0)
+        let up = SIMD3<Float>(0.0, 1.0, 0.0)
         for block in blockObjects {
             guard let physicsNode = block.physicsNode, let physicsBody = physicsNode.physicsBody else { continue }
             
             let position = physicsNode.presentation.simdWorldPosition
-            let positionWithoutY = float3(position.x, 0.0, position.z)
+            let positionWithoutY = SIMD3<Float>(position.x, 0.0, position.z)
             let distanceFromCenter = length(positionWithoutY)
             let directionToCenter = -normalize(positionWithoutY)
             
@@ -202,7 +202,7 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
                 physicsBody.simdVelocity = normalize(physicsBody.simdVelocity) * maxVelocity
             }
             
-            var force = float3()
+            var force = SIMD3<Float>()
 
             // Stage specific manipulation
             let vortexDirection = cross(directionToCenter, up)
@@ -246,11 +246,11 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
             let heightMoveFactor = abs(normalizedPositionInBoundY - 0.5)
             let newPositionY = position.y + vortexCenterYDelta + vortexHeightDelta * heightMoveFactor
 
-            let positionXZ = float3(position.x, 0.0, position.z)
+            let positionXZ = SIMD3<Float>(position.x, 0.0, position.z)
             let radialMoveFactor = clamp(distanceFromCenter / outerRadius, 0.0, 1.0)
             let newPositionXZ = positionXZ + maxOuterRadiusDelta * radialMoveFactor * -directionToCenter
 
-            physicsNode.simdWorldPosition = float3(newPositionXZ.x, newPositionY, newPositionXZ.z)
+            physicsNode.simdWorldPosition = SIMD3<Float>(newPositionXZ.x, newPositionY, newPositionXZ.z)
             physicsNode.simdWorldOrientation = physicsNode.presentation.simdWorldOrientation
             physicsBody.resetTransform()
         }
@@ -275,7 +275,7 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
         enumerateThroughBlocks { physicsBody in
             physicsBody.isAffectedByGravity = false
             let initialImpulse = maxInitialImpulse * Float(drand48() * 0.7 + 0.3)
-            physicsBody.applyForce(float3(0.0, initialImpulse, 0.0), asImpulse: true)
+            physicsBody.applyForce(SIMD3<Float>(0.0, initialImpulse, 0.0), asImpulse: true)
 
             applyRandomTorque(physicsBody: physicsBody, maxTorque: maxInitialTorque)
 
@@ -347,9 +347,9 @@ class VortexInteraction: Interaction, LeverInteractionDelegate {
     // MARK: - Helper Function
     
     private func applyRandomTorque(physicsBody: SCNPhysicsBody, maxTorque: Float) {
-        var randomAxis = float3(Float(drand48()), Float(drand48()), Float(drand48()))
+        var randomAxis = SIMD3<Float>(Float(drand48()), Float(drand48()), Float(drand48()))
         randomAxis = normalize(randomAxis)
-        let randomTorque = float4(randomAxis, Float(drand48() * 2.0 - 1.0) * maxTorque)
+        let randomTorque = SIMD4<Float>(randomAxis, Float(drand48() * 2.0 - 1.0) * maxTorque)
         physicsBody.applyTorque(randomTorque, asImpulse: true)
     }
     

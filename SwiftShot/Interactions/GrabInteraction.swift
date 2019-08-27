@@ -18,7 +18,7 @@ protocol Grabbable: class {
     func doHighlight(show: Bool, sfxCoordinator: SFXCoordinator?)
     
     func canGrab(cameraRay: Ray) -> Bool
-    func distanceFrom(_ worldPos: float3) -> Float
+    func distanceFrom(_ worldPos: SIMD3<Float>) -> Float
     
     func move(cameraInfo: CameraInfo)
 }

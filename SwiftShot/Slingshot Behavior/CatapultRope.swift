@@ -71,11 +71,11 @@ class CatapultRope {
         rope.ballRadius = ballRadius
     }
     
-    public func grabBall(_ ballPosition: float3) {
+    public func grabBall(_ ballPosition: SIMD3<Float>) {
         moveBall(ballPosition)
     }
     
-    public func moveBall(_ ballPosition: float3) {
+    public func moveBall(_ ballPosition: SIMD3<Float>) {
         
         // grab must be called prior, and it sets .move mode up
         state = .move

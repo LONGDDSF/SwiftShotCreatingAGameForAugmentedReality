@@ -79,7 +79,7 @@ extension UserDefaults {
     var myself: Player {
         get {
             if let data = data(forKey: UserDefaultsKeys.peerID),
-                let unarchived = try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data),
+                let unarchived = ((try? NSKeyedUnarchiver.unarchivedObject(ofClass: MCPeerID.self, from: data)) as MCPeerID??),
                 let peerID = unarchived {
                 return Player(peerID: peerID)
             }

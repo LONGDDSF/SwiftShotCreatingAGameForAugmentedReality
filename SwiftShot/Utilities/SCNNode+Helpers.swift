@@ -95,13 +95,13 @@ extension SCNNode {
     
     // Returns the size of the horizontal parts of the node's bounding box.
     // x is the width, y is the depth.
-    var horizontalSize: float2 {
+    var horizontalSize: SIMD2<Float> {
         let (minBox, maxBox) = simdBoundingBox
 
         // Scene is y-up, horizontal extent is calculated on x and z
         let sceneWidth = abs(maxBox.x - minBox.x)
         let sceneLength = abs(maxBox.z - minBox.z)
-        return float2(sceneWidth, sceneLength)
+        return SIMD2<Float>(sceneWidth, sceneLength)
     }
     
     private func findNodeWithPhysicsBodyHelper(node: SCNNode) -> SCNNode? {
@@ -142,12 +142,12 @@ extension SCNNode {
         return true
     }
 
-    func hitTestWithSegment(from pointA: float3, to pointB: float3, options: [String: Any]? = nil) -> [SCNHitTestResult] {
+    func hitTestWithSegment(from pointA: SIMD3<Float>, to pointB: SIMD3<Float>, options: [String: Any]? = nil) -> [SCNHitTestResult] {
         return hitTestWithSegment(from: SCNVector3(pointA), to: SCNVector3(pointB), options: options)
     }
     
-    var simdBoundingBox: (min: float3, max: float3) {
-        get { return (float3(boundingBox.min), float3(boundingBox.max)) }
+    var simdBoundingBox: (min: SIMD3<Float>, max: SIMD3<Float>) {
+        get { return (SIMD3<Float>(boundingBox.min), SIMD3<Float>(boundingBox.max)) }
         set { boundingBox = (min: SCNVector3(newValue.min), max: SCNVector3(newValue.max)) }
     }
 

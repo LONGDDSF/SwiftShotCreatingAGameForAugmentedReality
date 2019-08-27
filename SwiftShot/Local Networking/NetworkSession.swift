@@ -88,11 +88,11 @@ class NetworkSession: NSObject {
             let peerIds = peers.map { $0.peerID }
             try session.send(data, toPeers: peerIds, with: .reliable)
             if action.description != "physics" {
-                 os_signpost(.event, log: .network_data_sent, name: .network_action_sent, signpostID: .network_data_sent,
+                 os_signpost(.event, log: .networkDataSent, name: .networkActionSent, signpostID: .networkDataSent,
                              "Action : %s", action.description)
             } else {
                 let bytes = Int32(exactly: data.count) ?? Int32.max
-                os_signpost(.event, log: .network_data_sent, name: .network_physics_sent, signpostID: .network_data_sent,
+                os_signpost(.event, log: .networkDataSent, name: .networkPhysicsSent, signpostID: .networkDataSent,
                             "%d Bytes Sent", bytes)
             }
         } catch {
@@ -111,11 +111,11 @@ class NetworkSession: NSObject {
                 try sendSmall(data: data, to: player.peerID)
             }
             if action.description != "physics" {
-                os_signpost(.event, log: .network_data_sent, name: .network_action_sent, signpostID: .network_data_sent,
+                os_signpost(.event, log: .networkDataSent, name: .networkActionSent, signpostID: .networkDataSent,
                             "Action : %s", action.description)
             } else {
                 let bytes = Int32(exactly: data.count) ?? Int32.max
-                os_signpost(.event, log: .network_data_sent, name: .network_physics_sent, signpostID: .network_data_sent,
+                os_signpost(.event, log: .networkDataSent, name: .networkPhysicsSent, signpostID: .networkDataSent,
                             "%d Bytes Sent", bytes)
             }
         } catch {
@@ -155,12 +155,12 @@ class NetworkSession: NSObject {
             let command = GameCommand(player: player, action: action)
             delegate?.networkSession(self, received: command)
             if action.description != "physics" {
-                os_signpost(.event, log: .network_data_received, name: .network_action_received, signpostID: .network_data_received,
+                os_signpost(.event, log: .networkDataReceived, name: .networkActionReceived, signpostID: .networkDataReceived,
                             "Action : %s", action.description)
             } else {
                 let peerID = Int32(truncatingIfNeeded: peerID.displayName.hashValue)
                 let bytes = Int32(exactly: data.count) ?? Int32.max
-                os_signpost(.event, log: .network_data_received, name: .network_physics_received, signpostID: .network_data_received,
+                os_signpost(.event, log: .networkDataReceived, name: .networkPhysicsReceived, signpostID: .networkDataReceived,
                             "%d Bytes Sent from %d", bytes, peerID)
             }
         } catch {
@@ -183,6 +183,8 @@ extension NetworkSession: MCSessionDelegate {
         case.notConnected:
             peers.remove(player)
             delegate?.networkSession(self, leaving: player)
+        default:
+            fatalError(#function + " - Unexpected multipeer connectivity state.")
         }
         // on the server, check to see if we're at the max number of players
         guard isServer else { return }

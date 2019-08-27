@@ -35,7 +35,7 @@ extension Data {
 
         let resultSize = withUnsafeBytes { source in
             return dest.withUnsafeMutableBytes { dest in
-                return compression_encode_buffer(dest, destSize, source, srcSize, nil, COMPRESSION_LZFSE)
+                return encodeRawBuffer(dest, destSize, source, srcSize)
             }
         }
         return resultSize
@@ -57,16 +57,24 @@ extension Data {
     }
 
     private func decompress(into dest: inout Data) -> Int {
-
         let destSize = dest.count
         let srcSize = count
-
         let result = withUnsafeBytes { source in
-            return dest.withUnsafeMutableBytes { dest -> Int in
-                return compression_decode_buffer(dest, destSize, source, srcSize, nil, COMPRESSION_LZFSE)
+            return dest.withUnsafeMutableBytes { dest in
+                return decodeRawBuffer(dest, destSize, source, srcSize)
             }
         }
-
         return result
+    }
+        
+    private func encodeRawBuffer(_ dest: UnsafeMutableRawBufferPointer, _ destSize: Int, _ source: UnsafeRawBufferPointer, _ srcSize: Int) -> Int {
+        let destPtr = dest.baseAddress!.bindMemory(to: UInt8.self, capacity: destSize)
+        let srcPtr = source.baseAddress!.bindMemory(to: UInt8.self, capacity: srcSize)
+        return compression_encode_buffer(destPtr, destSize, srcPtr, srcSize, nil, COMPRESSION_LZFSE)
+    }
+    private func decodeRawBuffer(_ dest: UnsafeMutableRawBufferPointer, _ destSize: Int, _ source: UnsafeRawBufferPointer, _ srcSize: Int) -> Int {
+        let destPtr = dest.baseAddress!.bindMemory(to: UInt8.self, capacity: destSize)
+        let srcPtr = source.baseAddress!.bindMemory(to: UInt8.self, capacity: srcSize)
+        return compression_decode_buffer(destPtr, destSize, srcPtr, srcSize, nil, COMPRESSION_LZFSE)
     }
 }

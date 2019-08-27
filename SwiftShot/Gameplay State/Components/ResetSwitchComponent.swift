@@ -13,7 +13,7 @@ class ResetSwitchComponent: GKComponent, HighlightableComponent {
     let highlightObj: SCNNode?
     let mirrorObj: SCNNode?
     let leverObj: SCNNode
-    private let leverHoldScale = float3(1.2, 1.2, 1.2)
+    private let leverHoldScale = SIMD3<Float>(1.2, 1.2, 1.2)
     private let leverHighlightDistance: Float = 2.5
     
     // set the angle of the lever here
@@ -53,7 +53,7 @@ class ResetSwitchComponent: GKComponent, HighlightableComponent {
     }
     
     // convenience function to return which side of center the lever is on, so we can flip the
-    func pullOffset(cameraOffset: float3) -> float3 {
+    func pullOffset(cameraOffset: SIMD3<Float>) -> SIMD3<Float> {
         return base.simdConvertVector(cameraOffset, from: nil)
     }
     
@@ -74,14 +74,14 @@ class ResetSwitchComponent: GKComponent, HighlightableComponent {
     func doHighlight(show: Bool, sfxCoordinator: SFXCoordinator?) {
         // turn off
         if !show {
-            leverObj.simdScale = float3(1.0, 1.0, 1.0)
+            leverObj.simdScale = SIMD3<Float>(1.0, 1.0, 1.0)
         
             if let highlight = highlightObj {
                 highlight.isHidden = true
             }
         
             if let mirror = mirrorObj {
-                mirror.simdScale = float3(1.0, 1.0, 1.0)
+                mirror.simdScale = SIMD3<Float>(1.0, 1.0, 1.0)
             }
          
             sfxCoordinator?.playLeverHighlight(highlighted: false)

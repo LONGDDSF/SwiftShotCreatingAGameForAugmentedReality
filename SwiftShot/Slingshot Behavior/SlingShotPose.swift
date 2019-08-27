@@ -13,10 +13,10 @@ import simd
 // tangents or full transforms along the rope.
 class SlingShotPose {
     
-    var positions: [float3] = [] // Positions along the rope
-    var tangents: [float3] = [] // Tangents along the rope
+    var positions: [SIMD3<Float>] = [] // Positions along the rope
+    var tangents: [SIMD3<Float>] = [] // Tangents along the rope
     var lengths: [Float] = [] // Accumulated length along the rope [0, lengthFirstSegments, ..., totalLength]
-    var upVector = float3(0, 1, 0) // Vector used to compute orientation of each segment
+    var upVector = SIMD3<Float>(0, 1, 0) // Vector used to compute orientation of each segment
     
     private var lastIndex: Int = 0
 
@@ -50,20 +50,20 @@ class SlingShotPose {
     }
     
     // returns the interpolated position at a given length (l from 0.0 to totalLength)
-    func position(at l: Float) -> float3 {
+    func position(at l: Float) -> SIMD3<Float> {
         let s = findIndex(l)
-        return mix(positions[lastIndex], positions[lastIndex + 1], t: float3(s))
+        return mix(positions[lastIndex], positions[lastIndex + 1], t: SIMD3<Float>(repeating: s))
     }
     
     // returns the position for a given index
-    func positionForIndex(_ index: Int) -> float3 {
+    func positionForIndex(_ index: Int) -> SIMD3<Float> {
         return positions[index]
     }
     
     // returns the interpolated tangent at a given length (l from 0.0 to totalLength)
-    func tangent(at l: Float) -> float3 {
+    func tangent(at l: Float) -> SIMD3<Float> {
         let s = findIndex(l)
-        return normalize(mix(tangents[lastIndex], tangents[lastIndex + 1], t: float3(s)))
+        return normalize(mix(tangents[lastIndex], tangents[lastIndex + 1], t: SIMD3<Float>(repeating: s)))
     }
     
     // returns the interpolated transform at a given length (l from 0.0 to totalLength)
@@ -75,7 +75,7 @@ class SlingShotPose {
         let z = normalize(cross(x, y))
         y = normalize(cross(z, x))
         
-        let rot = float3x3(x, y, z)
+        let rot = simd_float3x3(x, y, z)
         let q = simd_quatf(rot)
         var m = float4x4(q)
         m.translation = p

@@ -9,13 +9,13 @@ import Foundation
 
 import GameplayKit
 struct Waypoint {
-    var pos: float3
-    var tangent: float3
+    var pos: SIMD3<Float>
+    var tangent: SIMD3<Float>
     var rot: simd_quatf
     var time: TimeInterval
 }
 
-let waypoint_prefix = "_waypoint"
+let waypointPrefix = "_waypoint"
 
 class AnimWaypointComponent: GKComponent {
     private var wayPoints: [Waypoint] = []
@@ -88,7 +88,7 @@ class AnimWaypointComponent: GKComponent {
         // close the loop
         guard let first = wayPoints.first else { return }
         let waypoint = Waypoint(pos: first.pos,
-                                tangent: float3(0),
+                                tangent: SIMD3<Float>(repeating: 0),
                                 rot: first.rot,
                                 time: Double(wayPoints.count) / speed)
         wayPoints.append(waypoint)
@@ -96,9 +96,9 @@ class AnimWaypointComponent: GKComponent {
     
     // find all way points
     private func iterateForWaypoints(node: SCNNode) {
-        if let name = node.name, name.hasPrefix(waypoint_prefix) {
+        if let name = node.name, name.hasPrefix(waypointPrefix) {
             let waypoint = Waypoint(pos: node.simdWorldPosition,
-                                    tangent: float3(0),
+                                    tangent: SIMD3<Float>(repeating: 0),
                                     rot: node.simdWorldOrientation,
                                     time: Double(wayPoints.count) / speed)
             wayPoints.append(waypoint)
@@ -156,7 +156,7 @@ class AnimWaypointComponent: GKComponent {
         let newPosY = hermiteCurve(pos1: curPos.y, pos2: nextPos.y, tangent1: curTan.y, tangent2: nextTan.y, time: alpha)
         let newPosZ = hermiteCurve(pos1: curPos.z, pos2: nextPos.z, tangent1: curTan.z, tangent2: nextTan.z, time: alpha)
         let newQuat = simd_slerp(curRot, nextRot, alpha)
-        node.simdWorldPosition = float3(newPosX, newPosY, newPosZ)
+        node.simdWorldPosition = SIMD3<Float>(newPosX, newPosY, newPosZ)
         node.simdWorldOrientation = newQuat
 
         // update child rigid bodies to percolate into physics

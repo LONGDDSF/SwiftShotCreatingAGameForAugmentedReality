@@ -48,7 +48,7 @@ class InteractionManager {
         }
     }
     
-    func didCollision(nodeA: SCNNode, nodeB: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(nodeA: SCNNode, nodeB: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         for interaction in interactions.values {
             // nodeA and nodeB take turn to be the main node
             interaction.didCollision(node: nodeA, otherNode: nodeB, pos: pos, impulse: impulse)

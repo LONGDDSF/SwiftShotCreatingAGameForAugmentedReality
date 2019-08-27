@@ -90,8 +90,8 @@ extension GameBoard {
                 case .horizontal: plane.width = borderSize.width / 2
                 case .vertical:   plane.height = borderSize.height / 2
                 }
-                simdScale = float3(1)
-                simdPosition = float3(corner.u * alignment.xOffset(for: borderSize),
+                simdScale = SIMD3<Float>(repeating: 1)
+                simdPosition = SIMD3<Float>(corner.u * alignment.xOffset(for: borderSize),
                                       corner.v * alignment.yOffset(for: borderSize),
                                       0)
             }
@@ -104,23 +104,23 @@ extension GameBoard {
         // MARK: - Animating Open/Closed
         
         func open() {
-            var offset = float2()
+            var offset = SIMD2<Float>()
             if alignment == .horizontal {
-                simdScale = float3(BorderSegment.openScale, 1, 1)
+                simdScale = SIMD3<Float>(BorderSegment.openScale, 1, 1)
                 offset.x = (1 - BorderSegment.openScale) * Float(borderSize.width) / 4
             } else {
-                simdScale = float3(1, BorderSegment.openScale, 1)
+                simdScale = SIMD3<Float>(1, BorderSegment.openScale, 1)
                 offset.y = (1 - BorderSegment.openScale) * Float(borderSize.height) / 4
             }
             
-            simdPosition = float3(corner.u * alignment.xOffset(for: borderSize) + corner.u * offset.x,
+            simdPosition = SIMD3<Float>(corner.u * alignment.xOffset(for: borderSize) + corner.u * offset.x,
                                   corner.v * alignment.yOffset(for: borderSize) + corner.v * offset.y,
                                   0)
         }
         
         func close() {
-            simdScale = float3(1)
-            simdPosition = float3(corner.u * alignment.xOffset(for: borderSize),
+            simdScale = SIMD3<Float>(repeating: 1)
+            simdPosition = SIMD3<Float>(corner.u * alignment.xOffset(for: borderSize),
                                   corner.v * alignment.yOffset(for: borderSize),
                                   0)
         }

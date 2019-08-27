@@ -21,34 +21,34 @@ extension CATransform3D {
 }
 
 extension float4x4 {
-    var translation: float3 {
+    var translation: SIMD3<Float> {
         get {
             return columns.3.xyz
         }
         set(newValue) {
-            columns.3 = float4(newValue, 1)
+            columns.3 = SIMD4<Float>(newValue, 1)
         }
     }
     
-    var scale: float3 {
-        return float3(length(columns.0), length(columns.1), length(columns.2))
+    var scale: SIMD3<Float> {
+        return SIMD3<Float>(length(columns.0), length(columns.1), length(columns.2))
     }
 
-    init(translation vector: float3) {
-        self.init(float4(1, 0, 0, 0),
-                  float4(0, 1, 0, 0),
-                  float4(0, 0, 1, 0),
-                  float4(vector.x, vector.y, vector.z, 1))
+    init(translation vector: SIMD3<Float>) {
+        self.init(SIMD4<Float>(1, 0, 0, 0),
+                  SIMD4<Float>(0, 1, 0, 0),
+                  SIMD4<Float>(0, 0, 1, 0),
+                  SIMD4<Float>(vector.x, vector.y, vector.z, 1))
     }
     
     init(scale factor: Float) {
-        self.init(scale: float3(factor))
+        self.init(scale: SIMD3<Float>(repeating: factor))
     }
-    init(scale vector: float3) {
-        self.init(float4(vector.x, 0, 0, 0),
-                  float4(0, vector.y, 0, 0),
-                  float4(0, 0, vector.z, 0),
-                  float4(0, 0, 0, 1))
+    init(scale vector: SIMD3<Float>) {
+        self.init(SIMD4<Float>(vector.x, 0, 0, 0),
+                  SIMD4<Float>(0, vector.y, 0, 0),
+                  SIMD4<Float>(0, 0, vector.z, 0),
+                  SIMD4<Float>(0, 0, 0, 1))
     }
     
     static let identity = matrix_identity_float4x4
@@ -62,12 +62,12 @@ func normalize(_ matrix: float4x4) -> float4x4 {
     return normalized
 }
 
-extension float4 {
-    static let zero = float4(0.0)
+extension SIMD4 where Scalar == Float {
+    static let zero = SIMD4<Float>(repeating: 0.0)
     
-    var xyz: float3 {
+    var xyz: SIMD3<Float> {
         get {
-            return float3(x, y, z)
+            return SIMD3<Float>(x, y, z)
         }
         set {
             x = newValue.x
@@ -76,7 +76,7 @@ extension float4 {
         }
     }
     
-    init(_ xyz: float3, _ w: Float) {
+    init(_ xyz: SIMD3<Float>, _ w: Float) {
         self.init(xyz.x, xyz.y, xyz.z, w)
     }
     
@@ -84,17 +84,17 @@ extension float4 {
         return x.isNaN || y.isNaN || z.isNaN || w.isNaN
     }
     
-    func almostEqual(_ value: float4, within tolerance: Float) -> Bool {
+    func almostEqual(_ value: SIMD4<Float>, within tolerance: Float) -> Bool {
         return length(self - value) <= tolerance
     }
 }
 
-extension float3 {
+extension SIMD3 where Scalar == Float {
     var hasNaN: Bool {
         return x.isNaN || y.isNaN || z.isNaN
     }
     
-    func almostEqual(_ value: float3, within tolerance: Float) -> Bool {
+    func almostEqual(_ value: SIMD3<Float>, within tolerance: Float) -> Bool {
         return length(self - value) <= tolerance
     }
 }

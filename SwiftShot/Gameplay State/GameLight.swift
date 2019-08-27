@@ -11,8 +11,8 @@ import SceneKit
 import os.log
 
 struct GameLightProps {
-    var shadowMapSize = float2(2048, 4096)
-    var angles = float3(-90, 0, 0)
+    var shadowMapSize = SIMD2<Float>(2048, 4096)
+    var angles = SIMD3<Float>(-90, 0, 0)
     var shadowMode: Int = 0
 }
 
@@ -29,10 +29,10 @@ class GameLight {
         guard let obj = node.gameObject else { return }
         
         // use the props data, or else use the defaults in the struct above
-        if let shadowMapSize = obj.propFloat2("shadowMapSize") {
+        if let shadowMapSize = obj.propSIMD2Float("shadowMapSize") {
             props.shadowMapSize = shadowMapSize
         }
-        if let angles = obj.propFloat3("angles") {
+        if let angles = obj.propSIMD3Float("angles") {
             let toRadians = Float.pi / 180.0
             props.angles = angles * toRadians
         }

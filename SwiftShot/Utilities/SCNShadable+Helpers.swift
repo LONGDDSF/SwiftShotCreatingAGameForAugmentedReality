@@ -18,16 +18,16 @@ extension SCNShadable where Self: NSObject {
     }
     
     // these repeat the type name, so if types change user can validate all type breaks
-    func setFloat4x4(_ uniform: String, _ value: float4x4) {
+    func setfloat4x4(_ uniform: String, _ value: float4x4) {
         setValue(CATransform3D(value), forKey: uniform)
     }
-    func setFloat4(_ uniform: String, _ value: float4) {
-        setValue(SCNVector4(value.x, value.y, value.z, value.w), forKey: uniform)
+    func setSIMD4Float(_ uniform: String, _ value: SIMD4<Float>) {
+        setValue(SIMD4<Float>(value.x, value.y, value.z, value.w), forKey: uniform)
     }
-    func setFloat3(_ uniform: String, _ value: float3) {
-        setValue(SCNVector3(value.x, value.y, value.z), forKey: uniform)
+    func setSIMD3Float(_ uniform: String, _ value: SIMD3<Float>) {
+        setValue(SIMD3<Float>(value.x, value.y, value.z), forKey: uniform)
     }
-    func setFloat2(_ uniform: String, _ value: float2) {
+    func setSIMD2Float(_ uniform: String, _ value: SIMD2<Float>) {
         setValue(CGPoint(x: CGFloat(value.x), y: CGFloat(value.y)), forKey: uniform)
     }
     func setFloat(_ uniform: String, _ value: Float) {

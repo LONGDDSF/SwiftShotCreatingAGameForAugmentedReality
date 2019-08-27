@@ -12,10 +12,10 @@ import Metal
 import SceneKit
 
 struct SimulationData {
-    var wind: float3
+    var wind: SIMD3<Float>
     var pad1: Float = 0
     
-    init(wind: float3) {
+    init(wind: SIMD3<Float>) {
         self.wind = wind
     }
 }
@@ -44,17 +44,17 @@ class ClothSimMetalNode {
     var currentBufferIndex: Int = 0
     
     init(device: MTLDevice, width: uint, height: uint) {
-        var vertices: [float3] = []
-        var normals: [float3] = []
-        var uvs: [float2] = []
+        var vertices: [SIMD3<Float>] = []
+        var normals: [SIMD3<Float>] = []
+        var uvs: [SIMD2<Float>] = []
         var indices: [UInt32] = []
         
         for y in 0..<height {
             for x in 0..<width {
-                let p = float3(Float(x), 0, Float(y))
+                let p = SIMD3<Float>(Float(x), 0, Float(y))
                 vertices.append(p)
-                normals.append(float3(0, 1, 0))
-                uvs.append(float2(p.x / Float(width), p.z / Float(height)))
+                normals.append(SIMD3<Float>(0, 1, 0))
+                uvs.append(SIMD2<Float>(p.x / Float(width), p.z / Float(height)))
             }
         }
         
@@ -79,10 +79,10 @@ class ClothSimMetalNode {
         }
         
         let vertexBuffer1 = device.makeBuffer(bytes: vertices,
-                                              length: vertices.count * MemoryLayout<float3>.size,
+                                              length: vertices.count * MemoryLayout<SIMD3<Float>>.size,
                                               options: [.cpuCacheModeWriteCombined])
         
-        let vertexBuffer2 = device.makeBuffer(length: vertices.count * MemoryLayout<float3>.size,
+        let vertexBuffer2 = device.makeBuffer(length: vertices.count * MemoryLayout<SIMD3<Float>>.size,
                                               options: [.cpuCacheModeWriteCombined])
         
         let vertexSource = SCNGeometrySource(buffer: vertexBuffer1!,
@@ -90,13 +90,13 @@ class ClothSimMetalNode {
                                              semantic: .vertex,
                                              vertexCount: vertices.count,
                                              dataOffset: 0,
-                                             dataStride: MemoryLayout<float3>.size)
+                                             dataStride: MemoryLayout<SIMD3<Float>>.size)
         
         let normalBuffer = device.makeBuffer(bytes: normals,
-                                             length: normals.count * MemoryLayout<float3>.size,
+                                             length: normals.count * MemoryLayout<SIMD3<Float>>.size,
                                              options: [.cpuCacheModeWriteCombined])
         
-        let normalWorkBuffer = device.makeBuffer(length: normals.count * MemoryLayout<float3>.size,
+        let normalWorkBuffer = device.makeBuffer(length: normals.count * MemoryLayout<SIMD3<Float>>.size,
                                                  options: [.cpuCacheModeWriteCombined])
         
         let normalSource = SCNGeometrySource(buffer: normalBuffer!,
@@ -104,10 +104,10 @@ class ClothSimMetalNode {
                                              semantic: .normal,
                                              vertexCount: normals.count,
                                              dataOffset: 0,
-                                             dataStride: MemoryLayout<float3>.size)
+                                             dataStride: MemoryLayout<SIMD3<Float>>.size)
         
         let uvBuffer = device.makeBuffer(bytes: uvs,
-                                         length: uvs.count * MemoryLayout<float2>.size,
+                                         length: uvs.count * MemoryLayout<SIMD2<Float>>.size,
                                          options: [.cpuCacheModeWriteCombined])
         
         let uvSource = SCNGeometrySource(buffer: uvBuffer!,
@@ -115,16 +115,16 @@ class ClothSimMetalNode {
                                          semantic: .texcoord,
                                          vertexCount: uvs.count,
                                          dataOffset: 0,
-                                         dataStride: MemoryLayout<float2>.size)
+                                         dataStride: MemoryLayout<SIMD2<Float>>.size)
         
         let indexElement = SCNGeometryElement(indices: indices, primitiveType: .triangles)
         let geo = SCNGeometry(sources: [vertexSource, normalSource, uvSource], elements: [indexElement])
         
         // velocity buffers
-        let velocityBuffer1 = device.makeBuffer(length: vertices.count * MemoryLayout<float3>.size,
+        let velocityBuffer1 = device.makeBuffer(length: vertices.count * MemoryLayout<SIMD3<Float>>.size,
                                                 options: [.cpuCacheModeWriteCombined])
         
-        let velocityBuffer2 = device.makeBuffer(length: vertices.count * MemoryLayout<float3>.size,
+        let velocityBuffer2 = device.makeBuffer(length: vertices.count * MemoryLayout<SIMD3<Float>>.size,
                                                 options: [.cpuCacheModeWriteCombined])
         
         self.geometry = geo
@@ -187,7 +187,7 @@ class MetalClothSimulator {
         let existingFlagBV = boundingBox.max - boundingBox.min
         let rescaleToMatchSizeMatrix = float4x4(scale: existingFlagBV.x / Float(width))
         
-        let rotation = simd_quatf(angle: .pi / 2, axis: float3(1, 0, 0))
+        let rotation = simd_quatf(angle: .pi / 2, axis: SIMD3<Float>(1, 0, 0))
         let localTransform = rescaleToMatchSizeMatrix * float4x4(rotation)
         
         clothNode.simdTransform = flag.simdTransform * localTransform
@@ -206,7 +206,7 @@ class MetalClothSimulator {
     func update(_ node: SCNNode) {
        
         for cloth in clothData {
-            let wind = float3(1.8, 0.0, 0.0)
+            let wind = SIMD3<Float>(1.8, 0.0, 0.0)
             
             // The multiplier is to rescale ball to flag model space.
             // The correct value should be passed in.

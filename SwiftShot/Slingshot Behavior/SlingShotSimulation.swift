@@ -35,9 +35,9 @@ class SlingShotSimulation: NSObject {
     let boneInset = 1
     
     struct SimulatedTransform {
-        var position: float3
+        var position: SIMD3<Float>
         var orientation: simd_quatf
-        var velocity: float3
+        var velocity: SIMD3<Float>
         var dynamic: Bool
     }
 
@@ -64,8 +64,8 @@ class SlingShotSimulation: NSObject {
         for i in 0...self.restPoseTransforms.count - 1 {
             
             let transform = self.restPoseSpace * self.restPoseTransforms[i]
-            let p = float3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
-            let t = simd_quatf(transform).act(float3(1, 0, 0))
+            let p = SIMD3<Float>(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            let t = simd_quatf(transform).act(SIMD3<Float>(1, 0, 0))
             
             var l: Float = 0.0
             if i > 0 {
@@ -80,16 +80,16 @@ class SlingShotSimulation: NSObject {
         return data
     }
 
-    var fixturePositionL: float3 {
+    var fixturePositionL: SIMD3<Float> {
         return restPose.positions.first!
     }
 
-    var fixturePositionR: float3 {
+    var fixturePositionR: SIMD3<Float> {
         return restPose.positions.last!
     }
     
-    var upVector: float3 {
-         return simd_quatf(restPoseSpace).act(float3(0, 1, 0))
+    var upVector: SIMD3<Float> {
+         return simd_quatf(restPoseSpace).act(SIMD3<Float>(0, 1, 0))
     }
     
     // return the number of simulated transforms in this slingshot
@@ -106,7 +106,7 @@ class SlingShotSimulation: NSObject {
     func simulatedTransformAsFloat4x4(_ index: Int) -> float4x4 {
         let mSim = simulatedTransforms[index]
         var m = float4x4(mSim.orientation)
-        m.columns.3 = float4(mSim.position, 1.0)
+        m.columns.3 = SIMD4<Float>(mSim.position, 1.0)
         return m
     }
 
@@ -115,7 +115,7 @@ class SlingShotSimulation: NSObject {
     private var time: TimeInterval = 0
 
     // the position of the ball - used to compute the input pose.
-    var ballPosition = float3(0, 0, -175) {
+    var ballPosition = SIMD3<Float>(0, 0, -175) {
         didSet {
             dirtyCachedValues()
         }
@@ -129,26 +129,26 @@ class SlingShotSimulation: NSObject {
     }
 
     // the position on the left side of the ball where the straight part of the rope touches
-    private var tangentPositionL: float3 {
+    private var tangentPositionL: SIMD3<Float> {
         return computedTangentPositionL.value
     }
-    private lazy var computedTangentPositionL = ComputedValue<float3> { [unowned self] in
+    private lazy var computedTangentPositionL = ComputedValue<SIMD3<Float>> { [unowned self] in
         return self.tangentPosition(self.fixturePositionL)
     }
 
     // the position on the right side of the ball where the straight part of the rope touches
-    private var tangentPositionR: float3 {
+    private var tangentPositionR: SIMD3<Float> {
         return computedTangentPositionR.value
     }
-    private lazy var computedTangentPositionR = ComputedValue<float3> { [unowned self] in
+    private lazy var computedTangentPositionR = ComputedValue<SIMD3<Float>> { [unowned self] in
         return self.tangentPosition(self.fixturePositionR)
     }
 
     // the center position within the triangle spanned by the ball and both fixture positions
-    private var centerPosition: float3 {
+    private var centerPosition: SIMD3<Float> {
         return computedCenterPosition.value
     }
-    private lazy var computedCenterPosition = ComputedValue<float3> { [unowned self] in
+    private lazy var computedCenterPosition = ComputedValue<SIMD3<Float>> { [unowned self] in
         let direction = cross(self.upVector, self.tangentPositionR - self.tangentPositionL)
         return self.ballPosition - normalize(direction) * 1.25 * self.ballRadius
     }
@@ -202,13 +202,13 @@ class SlingShotSimulation: NSObject {
                 u = (startBend + endBend) * 0.5 - (0.5 - u) * (currentLeatherRange / originalLeatherRange)
             }
             
-            var p = float3(0, 0, 0)
-            var t = float3(1, 0, 0)
+            var p = SIMD3<Float>(0, 0, 0)
+            var t = SIMD3<Float>(1, 0, 0)
             if u < startBend { // left straight
-                p = mix(fixturePositionL, tangentPositionL, t: float3(u / startBend)) // left rubber band
+                p = mix(fixturePositionL, tangentPositionL, t: SIMD3<Float>(repeating: u / startBend)) // left rubber band
                 t = normalize(tangentPositionL - fixturePositionL)
             } else if u > endBend { // right straight
-                p = mix(fixturePositionR, tangentPositionR, t: float3( ( 1.0 - u ) / ( 1.0 - endBend ) )) // right rubber band
+                p = mix(fixturePositionR, tangentPositionR, t: SIMD3<Float>(repeating: ( 1.0 - u ) / ( 1.0 - endBend ))) // right rubber band
                 t = normalize(fixturePositionR - tangentPositionR)
             } else { // on the ball
                 let upv = upVector
@@ -229,9 +229,9 @@ class SlingShotSimulation: NSObject {
         super.init()
         for i in 0..<count {
             let isStatic = (i < boneInset) || (i >= count - boneInset)
-            let p = float3(0, 0, 0)
-            let q = simd_quatf(angle: 0, axis: float3(1, 0, 0))
-            let v = float3(0, 0, 0)
+            let p = SIMD3<Float>(0, 0, 0)
+            let q = simd_quatf(angle: 0, axis: SIMD3<Float>(1, 0, 0))
+            let v = SIMD3<Float>(0, 0, 0)
             let transform = SimulatedTransform(position: p, orientation: q, velocity: v, dynamic: !isStatic)
 
             simulatedTransforms.append(transform)
@@ -249,7 +249,7 @@ class SlingShotSimulation: NSObject {
     }
 
     // computes the tangent position of the rope based on a given fixture
-    private func tangentPosition(_ fixture: float3) -> float3 {
+    private func tangentPosition(_ fixture: SIMD3<Float>) -> SIMD3<Float> {
         let r = ballRadius
         var d = fixture - ballPosition
         let alpha = acos(r / length(d))
@@ -292,7 +292,7 @@ class SlingShotSimulation: NSObject {
         let x = normalize(centerPosition - ballPosition)
         let y = upVector
         let z = cross(x, y)
-        let rot = float3x3(x, y, z)
+        let rot = simd_float3x3(x, y, z)
         return simd_quatf(rot)
     }
     
@@ -358,10 +358,10 @@ class SlingShotSimulation: NSObject {
             let l = originalTotalLength * Float(i) / Float(simulatedTransforms.count - 1)
             let transform = inputPoseTransform(l)
 
-            let p = float3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            let p = SIMD3<Float>(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
             simulatedTransforms[i].position = p
             simulatedTransforms[i].orientation = simd_quatf(transform)
-            simulatedTransforms[i].velocity = float3(0)
+            simulatedTransforms[i].velocity = SIMD3<Float>(repeating: 0)
             simulatedTransforms[i].dynamic = false
         }
     }
@@ -389,7 +389,7 @@ class SlingShotSimulation: NSObject {
     // this should be called every frame.
     private func applyForces() {
         
-        let b = float3(simBlend)
+        let b = SIMD3<Float>(repeating: simBlend)
         
         for i in boneInset..<simulatedTransforms.count - boneInset {
             
@@ -397,7 +397,7 @@ class SlingShotSimulation: NSObject {
                 continue
             }
 
-            var force = float3()
+            var force = SIMD3<Float>()
             
             if i > 0 {
                 let restA = restPose.positions[i - 1]
@@ -439,12 +439,12 @@ class SlingShotSimulation: NSObject {
             let a = currentTransforms[i - 1].velocity
             let b = currentTransforms[i].velocity
             let c = currentTransforms[i + 1].velocity
-            let ab = mix(a, b, t: float3(0.5))
-            let bc = mix(b, c, t: float3(0.5))
-            simulatedTransforms[i].velocity = mix(ab, bc, t: float3(0.5))
+            let ab = mix(a, b, t: [0.5, 0.5, 0.5])
+            let bc = mix(b, c, t: [0.5, 0.5, 0.5])
+            simulatedTransforms[i].velocity = mix(ab, bc, t: [0.5, 0.5, 0.5])
         
-            let center = mix(currentTransforms[i - 1].position, currentTransforms[i + 1].position, t: float3(0.5))
-            simulatedTransforms[i].position = mix(simulatedTransforms[i].position, center, t: float3(smoothRope))
+            let center = mix(currentTransforms[i - 1].position, currentTransforms[i + 1].position, t: [0.5, 0.5, 0.5])
+            simulatedTransforms[i].position = mix(simulatedTransforms[i].position, center, t: SIMD3<Float>(repeating: smoothRope))
         }
     }
 
@@ -467,13 +467,13 @@ class SlingShotSimulation: NSObject {
                 pLocal.columns.3.z = collisionPlane
                 pM = restPoseSpace * pLocal
                 
-                let pOnPlane = float3(pM.columns.3.x, pM.columns.3.y, pM.columns.3.z)
+                let pOnPlane = SIMD3<Float>(pM.columns.3.x, pM.columns.3.y, pM.columns.3.z)
                 
-                let blend = float3(0.3)
+                let blend = SIMD3<Float>(repeating: 0.3)
                 simulatedTransforms[i].position = mix(p, pOnPlane, t: blend)
                 
                 var correctedVelocity = (simulatedTransforms[i].position - previousTransforms[i].position) / seconds
-                correctedVelocity *= float3(0.7, 0.1, 0.7)
+                correctedVelocity *= SIMD3<Float>(0.7, 0.1, 0.7)
                 
                 // verlet integration
                 simulatedTransforms[i].velocity = mix(v, correctedVelocity, t: blend)
@@ -486,9 +486,9 @@ class SlingShotSimulation: NSObject {
                 pLocal.columns.3.y = collisionPlane + 0.3
                 pM = restPoseSpace * pLocal
                 
-                let pOnPlane = float3(pM.columns.3.x, pM.columns.3.y, pM.columns.3.z)
+                let pOnPlane = SIMD3<Float>(pM.columns.3.x, pM.columns.3.y, pM.columns.3.z)
                 
-                let blend = float3(Float(0.3))
+                let blend = SIMD3<Float>(repeating: Float(0.3))
                 simulatedTransforms[i].position = mix(p, pOnPlane, t: blend)
                 
                 let correctedVelocity = (simulatedTransforms[i].position - previousTransforms[i].position) / seconds
@@ -516,13 +516,13 @@ class SlingShotSimulation: NSObject {
 
             // this is the upVector computed for each bone of the rest pose
             let transform = restPoseSpace * restPoseTransforms[i] // todo: direction of multiply?
-            var y = simd_quatf(transform).act(float3(0, 1, 0))
+            var y = simd_quatf(transform).act(SIMD3<Float>(0, 1, 0))
            
             let x = normalize(b - a)
             let z = normalize(cross(x, y))
             y = normalize(cross(z, x))
             
-            let rot = float3x3(x, y, z)
+            let rot = simd_float3x3(x, y, z)
             simulatedTransforms[i].orientation = simd_quatf(rot)
         }
     }

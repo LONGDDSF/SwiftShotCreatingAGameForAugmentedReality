@@ -24,7 +24,7 @@ class Go321Interaction: Interaction {
         // Setup node
         go123 = SCNNode.loadSCNAsset(modelFileName: "321Go")
         delegate.addNodeToLevel(go123)
-        go123.simdWorldPosition = float3(0.0, 5.0, 0.0)
+        go123.simdWorldPosition = SIMD3<Float>(0.0, 5.0, 0.0)
 
         // Stop animation in the beginnning
         go123.stopAllAnimations()
@@ -75,7 +75,7 @@ class Go321Interaction: Interaction {
         let ray = cameraInfo.ray
         
         var transform = cameraInfo.transform
-        transform.columns.3 += float4(ray.direction * distanceCameraToGoNode, 0.0)
+        transform.columns.3 += SIMD4<Float>(ray.direction * distanceCameraToGoNode, 0.0)
         let scale = go123.simdScale
         go123.simdWorldTransform = transform
         go123.simdScale = scale

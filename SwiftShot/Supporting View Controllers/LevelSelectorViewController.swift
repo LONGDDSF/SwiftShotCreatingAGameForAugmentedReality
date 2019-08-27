@@ -21,7 +21,7 @@ class LevelSelectorViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let level = GameLevel.level(at: indexPath.row) else {
-            fatalError("Level \(index) not found")
+            fatalError("Level \(indexPath.row) not found")
         }
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "LevelCell", for: indexPath)
@@ -32,7 +32,7 @@ class LevelSelectorViewController: UITableViewController {
     // MARK: - UITableViewDelegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let level = GameLevel.level(at: indexPath.row) else {
-            fatalError("Level \(index) not found")
+            fatalError("Level \(indexPath.row) not found")
         }
         
         UserDefaults.standard.selectedLevel = level

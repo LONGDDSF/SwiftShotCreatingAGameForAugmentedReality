@@ -134,7 +134,7 @@ class Catapult: GameObject, Grabbable {
     let rope: CatapultRope
 
     // original world position of sling to restore the position to
-    private var baseWorldPosition = float3()
+    private var baseWorldPosition = SIMD3<Float>()
     
     // Player who grabbed a catapult. A player can only operate one catapult at a time.
     // Players/teams may be restricted to a set of catapults.
@@ -158,7 +158,7 @@ class Catapult: GameObject, Grabbable {
     // highlight assistance
     var isVisible: Bool = false
     var isHighlighted: Bool = false
-    var projectedPos = float3(0.0)
+    var projectedPos = SIMD3<Float>(repeating: 0.0)
     var highlightColor = UIColor.white
     var highlightObject: SCNNode?
     
@@ -167,7 +167,7 @@ class Catapult: GameObject, Grabbable {
     let audioPlayer: CatapultAudioSampler
     
     // The starting position of the player when they grab the pull
-    private var playerWorldPosition = float3(0.0)
+    private var playerWorldPosition = SIMD3<Float>(repeating: 0.0)
     
     private(set) var disabled = false
     
@@ -194,7 +194,7 @@ class Catapult: GameObject, Grabbable {
     // That way it can be tested against the stretch of the sling.
     private(set) var projectile: SCNNode?
     private(set) var projectileType = ProjectileType.none
-    private var projectileScale: float3 = float3(1.0)
+    private var projectileScale: SIMD3<Float> = SIMD3<Float>(repeating: 1.0)
     
     private var props = CatapultProps()
     var coolDownTime: TimeInterval { return props.cooldownTime }
@@ -243,7 +243,7 @@ class Catapult: GameObject, Grabbable {
                 projectile?.opacity = 1.0
                 projectile?.isHidden = true
                 projectile?.simdWorldPosition = ballOriginInactiveAbove.simdWorldPosition
-                projectile?.simdScale = float3(0.01)
+                projectile?.simdScale = SIMD3<Float>(repeating: 0.01)
             
             case .partial:
                 projectile?.opacity = 1.0
@@ -285,7 +285,7 @@ class Catapult: GameObject, Grabbable {
     }
     
     //  distance away from catapult base
-    public func distanceFrom(_ worldPos: float3) -> Float {
+    public func distanceFrom(_ worldPos: SIMD3<Float>) -> Float {
         let distance = worldPos - base.simdWorldPosition
         return length(distance)
     }
@@ -299,7 +299,7 @@ class Catapult: GameObject, Grabbable {
         node.simdEulerAngles = placeholder.simdEulerAngles
         
         // Add physics body to it
-        node.simdWorldPosition += float3(0.0, 0.2, 0.0)
+        node.simdWorldPosition += SIMD3<Float>(0.0, 0.2, 0.0)
         node.physicsBody?.resetTransform()
         
         guard let baseGeomNode = node.childNode(withName: "catapultBase", recursively: true) else { fatalError("No catapultBase") }
@@ -307,7 +307,7 @@ class Catapult: GameObject, Grabbable {
         
         // shift center of mass of the prong from the bottom
         // the 0.55 value is from experimentation
-        let prongPivotShiftUp = float3(0.0, 0.55, 0.0)
+        let prongPivotShiftUp = SIMD3<Float>(0.0, 0.55, 0.0)
         prongGeomNode.simdPivot = float4x4(translation: prongPivotShiftUp)
         prongGeomNode.simdPosition += prongPivotShiftUp
         
@@ -514,7 +514,7 @@ class Catapult: GameObject, Grabbable {
     
     private var isCatapultStable = true // Stable means not knocked and not moving
     private var isCatapultKnocked = false // Knocked means it is either tilted or fell off the table
-    private var lastPosition: float3?
+    private var lastPosition: SIMD3<Float>?
     
     private var catapultKnockedStartTime = TimeInterval(0.0)
     var catapultKnockedTime: TimeInterval { return !isCatapultKnocked ? 0.0 : GameTime.time - catapultKnockedStartTime }
@@ -597,7 +597,7 @@ class Catapult: GameObject, Grabbable {
         isPulledTooFar = false
     }
     
-    func animateGrab(_ ballPosition: float3) {
+    func animateGrab(_ ballPosition: SIMD3<Float>) {
         // here we want to animate the rotation of the current yaw to the new yaw
         // and also animate the strap moving to the center of the view
         
@@ -631,7 +631,7 @@ class Catapult: GameObject, Grabbable {
         sfxCoordinator?.catapultDidChangeHighlight(self, highlighted: show)
     }
     
-    private func firingDirection() -> float3 {
+    private func firingDirection() -> SIMD3<Float> {
         // this can change as the catapult rotates
         return base.simdWorldFront
     }
@@ -645,7 +645,7 @@ class Catapult: GameObject, Grabbable {
     
     // MARK: - Sling Move
     
-    func computeBallPosition(_ cameraInfo: CameraInfo) -> float3 {
+    func computeBallPosition(_ cameraInfo: CameraInfo) -> SIMD3<Float> {
         let cameraRay = cameraInfo.ray
         
         // These should be based on the projectile radius.
@@ -676,14 +676,14 @@ class Catapult: GameObject, Grabbable {
         let pullBlockCoreRadius = max(minBallDistanceFromPull, pullBlockConeRadius)
     
         // if pull is in the core, move it out.
-        let pullWorldPositionGrounded = float3(pullWorldPosition.x, 0.0, pullWorldPosition.z)
-        let targetPullPositionGrounded = float3(targetBallPosition.x, 0.0, targetBallPosition.z)
+        let pullWorldPositionGrounded = SIMD3<Float>(pullWorldPosition.x, 0.0, pullWorldPosition.z)
+        let targetPullPositionGrounded = SIMD3<Float>(targetBallPosition.x, 0.0, targetBallPosition.z)
         let targetInitialToTargetPull = targetPullPositionGrounded - pullWorldPositionGrounded
     
         if pullBlockCoreRadius > length(targetInitialToTargetPull) {
         let moveOutDirection = normalize(targetInitialToTargetPull)
         let newTargetPullPositionGrounded = pullWorldPositionGrounded + moveOutDirection * pullBlockCoreRadius
-        targetBallPosition = float3(newTargetPullPositionGrounded.x, targetBallPosition.y, newTargetPullPositionGrounded.z)
+        targetBallPosition = SIMD3<Float>(newTargetPullPositionGrounded.x, targetBallPosition.y, newTargetPullPositionGrounded.z)
         }
         
         // only use the 2d distance, so that user can gauage stretch indepdent of mtch
@@ -800,8 +800,8 @@ class Catapult: GameObject, Grabbable {
                        props.maxVelocity * stretchNormalized
         
         let launchDir = normalize(pullOrigin.simdWorldPosition - projectile.simdWorldPosition)
-        let liftFactor = Float(0.05) * abs(1.0 - dot(launchDir, float3(0.0, 1.0, 0.0))) // used to keep ball in air longer
-        let lift = float3(0.0, 1.0, 0.0) * Float(velocity) * liftFactor
+        let liftFactor = Float(0.05) * abs(1.0 - dot(launchDir, SIMD3<Float>(0.0, 1.0, 0.0))) // used to keep ball in air longer
+        let lift = SIMD3<Float>(0.0, 1.0, 0.0) * Float(velocity) * liftFactor
         guard !launchDir.hasNaN else { return nil }
         
         let velocityVector = GameVelocity(origin: projectile.simdWorldPosition, vector: launchDir * Float(velocity) + lift)

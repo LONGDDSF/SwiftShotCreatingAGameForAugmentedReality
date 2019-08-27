@@ -9,9 +9,9 @@ import Foundation
 import GameplayKit
 
 class SlingshotComponent: GKComponent {
-    var restPos: float3
-    var currentPos: float3
-    var vel: float3
+    var restPos: SIMD3<Float>
+    var currentPos: SIMD3<Float>
+    var vel: SIMD3<Float>
     var physicsMode: Bool
     let catapult: SCNNode
     
@@ -20,7 +20,7 @@ class SlingshotComponent: GKComponent {
         restPos = catapult.simdPosition
         currentPos = restPos
         physicsMode = false // Started off and gets turned on only if needed
-        vel = float3(0.0)
+        vel = SIMD3<Float>(repeating: 0.0)
         
         super.init()
     }

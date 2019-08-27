@@ -23,7 +23,7 @@ class PlayerTriggerComponent: GKComponent, CollisionHandlerComponent {
     
     // if the catapult id does not match the catapult that shot the cannon,
     // spawn a broken version of the slingshot
-    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: float3, impulse: CGFloat) {
+    func didCollision(manager: GameManager, node: SCNNode, otherNode: SCNNode, pos: SIMD3<Float>, impulse: CGFloat) {
         // `node` should be the collisionTrigger, `otherNode` the object that went in it
 
         if let sourceIndex = otherNode.value(forKey: "Source") as? Int,

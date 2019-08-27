@@ -1,4 +1,4 @@
-#!/usr/bin/swift
+#!/usr / bin / swift
 /*
 See LICENSE folder for this sample’s licensing information.
 

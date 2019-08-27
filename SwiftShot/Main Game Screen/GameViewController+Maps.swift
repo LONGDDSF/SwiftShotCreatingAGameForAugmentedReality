@@ -88,7 +88,7 @@ extension GameViewController {
             return
         }
         
-        if let currentIndex = keyPositionAnchors.index(of: currentKeyPositionAnchor) {
+        if let currentIndex = keyPositionAnchors.firstIndex(of: currentKeyPositionAnchor) {
             let nextIndex = (currentIndex + 1) % keyPositionAnchors.count
             setKeyPositionThumbnail(image: keyPositionAnchors[nextIndex].image)
         }
@@ -110,7 +110,7 @@ extension GameViewController {
             return
         }
         
-        if let currentIndex = keyPositionAnchors.index(of: currentKeyPositionAnchor) {
+        if let currentIndex = keyPositionAnchors.firstIndex(of: currentKeyPositionAnchor) {
             var nextIndex = currentIndex
             if currentIndex == 0 && keyPositionAnchors.count > 1 {
                 nextIndex = keyPositionAnchors.count - 1
@@ -159,6 +159,8 @@ extension GameViewController {
             mappingStateLabel.textColor = .green
             saveAsKeyPositionButton.isEnabled = true
             saveButton.isEnabled = true
+        default:
+            fatalError("Encountered an unexpected world mapping status.")
         }
     }
     

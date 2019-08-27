@@ -31,10 +31,10 @@ struct PhysicsNodeData: CustomStringConvertible {
     var isAlive = true
     var isMoving = false
     var team = Team.none
-    var position = float3()
+    var position = SIMD3<Float>()
     var orientation = simd_quatf()
-    var velocity = float3()
-    var angularVelocity = float4()
+    var velocity = SIMD3<Float>()
+    var angularVelocity = SIMD4<Float>()
     
     var description: String {
         let pos = position
@@ -62,8 +62,8 @@ extension PhysicsNodeData {
                 velocity = physicsBody.simdVelocity
                 angularVelocity = physicsBody.simdAngularVelocity
             } else {
-                velocity = float3()
-                angularVelocity = float4(0.0, 0.0, 0.0, 1.0)
+                velocity = SIMD3<Float>()
+                angularVelocity = SIMD4<Float>(0.0, 0.0, 0.0, 1.0)
             }
         }
     }
@@ -106,7 +106,7 @@ extension PhysicsNodeData: BitStreamCodable {
         // In this case sync over zero vector
         var angularVelocityToSend = angularVelocity
         if angularVelocityToSend.hasNaN {
-            angularVelocityToSend = float4(0.0, 0.0, 0.0, 0.0)
+            angularVelocityToSend = SIMD4<Float>(0.0, 0.0, 0.0, 0.0)
         }
 
         // Make sure angular velocity axis is normalized so that it will not exceed compressedFloat limit
@@ -122,12 +122,12 @@ extension PhysicsNodeData: BitStreamCodable {
         isMoving = try bitStream.readBool()
         team = try Team(from: &bitStream)
         // Position
-        position = try positionCompressor.readFloat3(from: &bitStream)
+        position = try positionCompressor.readSIMD3Float(from: &bitStream)
 
         // Orientation: use quaternion to
         let maxComponent = Int(try bitStream.readUInt32(numberOfBits: 2))
 
-        var orientationVector = float4()
+        var orientationVector = SIMD4<Float>()
         var squareSum: Float = 0.0
         for index in 0..<4 where index != maxComponent {
             orientationVector[index] = try orientationCompressor.read(from: &bitStream)
@@ -139,12 +139,12 @@ extension PhysicsNodeData: BitStreamCodable {
         // Moving Case:
         guard isMoving else { return }
 
-        velocity = try velocityCompressor.readFloat3(from: &bitStream)
+        velocity = try velocityCompressor.readSIMD3Float(from: &bitStream)
 
-        let angularVelocityAxis = try angularVelocityAxisCompressor.readFloat3(from: &bitStream)
+        let angularVelocityAxis = try angularVelocityAxisCompressor.readSIMD3Float(from: &bitStream)
         let angularVelocityMagnitude = try angularVelocityMagnitudeCompressor.read(from: &bitStream)
 
-        let angularVelocityReceived = float4(angularVelocityAxis.x, angularVelocityAxis.y, angularVelocityAxis.z, angularVelocityMagnitude)
+        let angularVelocityReceived = SIMD4<Float>(angularVelocityAxis.x, angularVelocityAxis.y, angularVelocityAxis.z, angularVelocityMagnitude)
 
         // Zero vector angularVelocity means it is NaN, and we can ignore the update
         if angularVelocityReceived != .zero {
